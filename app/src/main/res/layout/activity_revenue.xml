@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8FAFC"
+    tools:context=".RevenueActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <!-- Top Bar -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="24dp">
+            
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Revenue Analytics"
+                android:textColor="#0369A1"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Filter Row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="8dp">
+        
+        <TextView
+            android:id="@+id/tv_current_filter"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Past 1 Week"
+            android:textColor="#1E293B"
+            android:textSize="16sp"
+            android:textStyle="bold"/>
+            
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Filter"
+            app:icon="@android:drawable/ic_menu_sort_by_size"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:textColor="#0369A1"
+            app:backgroundTint="#E0F2FE" />
+    </LinearLayout>
+
+        <!-- Total Revenue Summary -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:gravity="center"
+            android:text="Total Revenue"
+            android:textColor="#64748B"
+            android:textSize="14sp" />
+            
+        <TextView
+            android:id="@+id/tv_revenue_amount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="₹ 1,24,500"
+            android:textColor="#0369A1"
+            android:textSize="40sp"
+            android:textStyle="bold"
+            android:layout_marginTop="4dp" />
+
+        <!-- Realistic Graph Section -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="240dp"
+            android:layout_marginTop="24dp"
+            app:cardBackgroundColor="@android:color/white"
+            app:cardCornerRadius="28dp"
+            app:cardElevation="12dp"
+            android:outlineAmbientShadowColor="#0EA5E9"
+            android:outlineSpotShadowColor="#0EA5E9">
+            
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="16dp">
+                
+                <!-- Y-Axis Labels -->
+                <LinearLayout
+                    android:id="@+id/layout_y_axis"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:layout_alignParentStart="true"
+                    android:layout_above="@+id/layout_x_axis"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginEnd="8dp">
+                    
+                    <TextView android:id="@+id/y_label_top" android:layout_width="wrap_content" android:layout_height="0dp" android:layout_weight="1" android:text="₹100k" android:textSize="10sp" android:textColor="#94A3B8"/>
+                    <TextView android:id="@+id/y_label_mid" android:layout_width="wrap_content" android:layout_height="0dp" android:layout_weight="1" android:text="₹50k" android:textSize="10sp" android:textColor="#94A3B8" android:gravity="center_vertical"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textSize="10sp" android:textColor="#94A3B8"/>
+                </LinearLayout>
+
+                <!-- Grid Lines -->
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E2E8F0" android:layout_alignTop="@id/layout_y_axis" android:layout_toEndOf="@id/layout_y_axis"/>
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E2E8F0" android:layout_centerVertical="true" android:layout_toEndOf="@id/layout_y_axis"/>
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E2E8F0" android:layout_alignBottom="@id/layout_y_axis" android:layout_toEndOf="@id/layout_y_axis"/>
+
+                <!-- X-Axis Labels -->
+                <LinearLayout
+                    android:id="@+id/layout_x_axis"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_alignParentBottom="true"
+                    android:layout_toEndOf="@id/layout_y_axis">
+                    
+                    <TextView android:id="@+id/x_label_1" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Mon" android:textSize="10sp" android:textColor="#94A3B8" android:gravity="center"/>
+                    <TextView android:id="@+id/x_label_2" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Tue" android:textSize="10sp" android:textColor="#94A3B8" android:gravity="center"/>
+                    <TextView android:id="@+id/x_label_3" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Wed" android:textSize="10sp" android:textColor="#94A3B8" android:gravity="center"/>
+                    <TextView android:id="@+id/x_label_4" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Thu" android:textSize="10sp" android:textColor="#94A3B8" android:gravity="center"/>
+                    <TextView android:id="@+id/x_label_5" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Fri" android:textSize="10sp" android:textColor="#94A3B8" android:gravity="center"/>
+                    <TextView android:id="@+id/x_label_6" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Sat" android:textSize="10sp" android:textColor="#94A3B8" android:gravity="center"/>
+                </LinearLayout>
+
+                <!-- Graph Bars -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:layout_above="@id/layout_x_axis"
+                    android:layout_toEndOf="@id/layout_y_axis"
+                    android:gravity="bottom"
+                    android:layout_marginBottom="8dp">
+                    
+                    <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="bottom|center_horizontal">
+                        <View android:id="@+id/bar_1" android:layout_width="16dp" android:layout_height="60dp" android:background="#7DD3FC" />
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="bottom|center_horizontal">
+                        <View android:id="@+id/bar_2" android:layout_width="16dp" android:layout_height="100dp" android:background="#7DD3FC" />
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="bottom|center_horizontal">
+                        <View android:id="@+id/bar_3" android:layout_width="16dp" android:layout_height="80dp" android:background="#0EA5E9" />
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="bottom|center_horizontal">
+                        <View android:id="@+id/bar_4" android:layout_width="16dp" android:layout_height="140dp" android:background="#7DD3FC" />
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="bottom|center_horizontal">
+                        <View android:id="@+id/bar_5" android:layout_width="16dp" android:layout_height="180dp" android:background="#0284C7" />
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="bottom|center_horizontal">
+                        <View android:id="@+id/bar_6" android:layout_width="16dp" android:layout_height="120dp" android:background="#7DD3FC" />
+                    </LinearLayout>
+
+                </LinearLayout>
+            </RelativeLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

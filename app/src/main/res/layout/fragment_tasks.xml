@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8F9FF">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        app:elevation="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp"
+            android:paddingTop="20dp"
+            app:layout_scrollFlags="scroll|enterAlways">
+
+            <!-- Top Profile Bar -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/avatar_card"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    app:cardCornerRadius="22dp"
+                    app:cardElevation="2dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+                    <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="#4361EE" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:text="JD" android:textColor="@android:color/white" android:textStyle="bold" />
+                </com.google.android.material.card.MaterialCardView>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:orientation="vertical"
+                    app:layout_constraintBottom_toBottomOf="@id/avatar_card"
+                    app:layout_constraintStart_toEndOf="@id/avatar_card"
+                    app:layout_constraintTop_toTopOf="@id/avatar_card">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Hello," android:textColor="#64748B" android:textSize="12sp" />
+                    <TextView android:id="@+id/tv_agent_name" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Agent John" android:textColor="#1E293B" android:textSize="16sp" android:textStyle="bold" />
+                </LinearLayout>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/notification_card"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    app:cardCornerRadius="18dp"
+                    app:cardElevation="2dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+                    <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="#FDEAEA" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:text="9" android:textColor="#E63946" android:textStyle="bold" />
+                </com.google.android.material.card.MaterialCardView>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- Done / Pending Count Cards -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:orientation="horizontal">
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    app:cardBackgroundColor="@android:color/white"
+                    app:cardCornerRadius="24dp"
+                    app:cardElevation="0dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:orientation="vertical">
+                        <TextView android:id="@+id/done_count" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="#10B981" android:textSize="18sp" android:textStyle="bold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Done" android:textColor="#64748B" android:textSize="12sp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+                <View android:layout_width="16dp" android:layout_height="match_parent" />
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    app:cardBackgroundColor="@android:color/white"
+                    app:cardCornerRadius="24dp"
+                    app:cardElevation="0dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:orientation="vertical">
+                        <TextView android:id="@+id/pending_count" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="#F97316" android:textSize="18sp" android:textStyle="bold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Pending" android:textColor="#64748B" android:textSize="12sp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <!-- Custom Society Selector with Map Icon -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/society_dropdown_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#F1F5F9"
+                app:strokeWidth="1dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:paddingHorizontal="16dp" android:paddingVertical="12dp">
+                    <TextView android:id="@+id/society_text" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="All Societies" android:textColor="#1E293B" android:textStyle="bold" />
+                    
+                    <ImageView android:layout_width="16dp" android:layout_height="16dp" android:layout_marginEnd="12dp" android:src="@android:drawable/arrow_down_float" app:tint="#64748B" />
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/map_location_button"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        app:cardBackgroundColor="#F0F4FF"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="0dp">
+                        <ImageView android:layout_width="20dp" android:layout_height="20dp" android:layout_gravity="center" android:src="@drawable/ic_nav_map" app:tint="#4361EE" />
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tab_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="12dp"
+                android:background="@android:color/transparent"
+                app:tabIndicatorColor="#4361EE"
+                app:tabIndicatorFullWidth="false"
+                app:tabIndicatorHeight="2dp"
+                app:tabSelectedTextColor="#4361EE"
+                app:tabTextColor="#64748B"
+                app:tabTextAppearance="@style/TextAppearance.MaterialComponents.Subtitle2">
+                <com.google.android.material.tabs.TabItem android:text="Pickup Tasks" />
+                <com.google.android.material.tabs.TabItem android:text="Delivery Tasks" />
+            </com.google.android.material.tabs.TabLayout>
+
+        </LinearLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/tasks_view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

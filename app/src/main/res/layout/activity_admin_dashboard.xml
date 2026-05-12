@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8FAFC"
+    tools:context=".AdminDashboardActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <!-- Header -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="24dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Welcome Back,"
+                    android:textColor="#64748B"
+                    android:textSize="14sp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Franchise Admin"
+                    android:textColor="#0369A1"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="2dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/app_logo"
+                    android:scaleType="centerCrop"/>
+            </com.google.android.material.card.MaterialCardView>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Stats Grid -->
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="2"
+            android:rowCount="2"
+            android:alignmentMode="alignMargins"
+            android:columnOrderPreserved="false">
+
+            <!-- Revenue -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_revenue"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
+                android:layout_margin="12dp"
+                app:cardBackgroundColor="@android:color/white"
+                app:cardCornerRadius="28dp"
+                app:cardElevation="12dp"
+                android:outlineAmbientShadowColor="#0EA5E9"
+                android:outlineSpotShadowColor="#0EA5E9"
+                app:strokeWidth="0dp"
+                android:clickable="true"
+                android:focusable="true">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+                    <ImageView android:layout_width="32dp" android:layout_height="32dp" android:src="@android:drawable/ic_menu_sort_by_size" app:tint="#0EA5E9" android:background="@drawable/bg_icon_blue_light" android:padding="6dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="$12.5k" android:textSize="24sp" android:textStyle="bold" android:textColor="#1E293B" android:layout_marginTop="12dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Total Revenue" android:textColor="#64748B" android:textSize="12sp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Active Agents -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_active_agents"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
+                android:layout_margin="12dp"
+                app:cardBackgroundColor="@android:color/white"
+                app:cardCornerRadius="28dp"
+                app:cardElevation="12dp"
+                android:outlineAmbientShadowColor="#0EA5E9"
+                android:outlineSpotShadowColor="#0EA5E9"
+                app:strokeWidth="0dp"
+                android:clickable="true"
+                android:focusable="true">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+                    <ImageView android:layout_width="32dp" android:layout_height="32dp" android:src="@android:drawable/ic_menu_myplaces" app:tint="#0EA5E9" android:background="@drawable/bg_icon_blue_light" android:padding="6dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="24" android:textSize="24sp" android:textStyle="bold" android:textColor="#1E293B" android:layout_marginTop="12dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Active Agents" android:textColor="#64748B" android:textSize="12sp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Pending Pickups -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_pending_pickups"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
+                android:layout_margin="12dp"
+                app:cardBackgroundColor="@android:color/white"
+                app:cardCornerRadius="28dp"
+                app:cardElevation="12dp"
+                android:outlineAmbientShadowColor="#F59E0B"
+                android:outlineSpotShadowColor="#F59E0B"
+                app:strokeWidth="0dp"
+                android:clickable="true"
+                android:focusable="true">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+                    <ImageView android:layout_width="32dp" android:layout_height="32dp" android:src="@android:drawable/ic_menu_recent_history" app:tint="#F59E0B" android:background="@drawable/bg_icon_orange_light" android:padding="6dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="18" android:textSize="24sp" android:textStyle="bold" android:textColor="#1E293B" android:layout_marginTop="12dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Pending Pickups" android:textColor="#64748B" android:textSize="12sp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Deliveries Completed -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_completed_deliveries"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
+                android:layout_margin="12dp"
+                app:cardBackgroundColor="@android:color/white"
+                app:cardCornerRadius="28dp"
+                app:cardElevation="12dp"
+                android:outlineAmbientShadowColor="#10B981"
+                android:outlineSpotShadowColor="#10B981"
+                app:strokeWidth="0dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+                    <ImageView android:layout_width="32dp" android:layout_height="32dp" android:src="@android:drawable/checkbox_on_background" app:tint="#10B981" android:background="@drawable/bg_icon_green_light" android:padding="6dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="142" android:textSize="24sp" android:textStyle="bold" android:textColor="#1E293B" android:layout_marginTop="12dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Deliveries Completed" android:textColor="#64748B" android:textSize="12sp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </GridLayout>
+
+        <!-- Top Performing Agents -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="12dp"
+            android:text="Top Performing Agents"
+            android:textColor="#0369A1"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none"
+            android:clipToPadding="false"
+            android:paddingEnd="16dp">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                
+                <!-- Agent 1 -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="12dp"
+                    android:layout_marginBottom="8dp"
+                    app:cardBackgroundColor="@android:color/white"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="2dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center" android:padding="12dp">
+                        <View android:layout_width="40dp" android:layout_height="40dp" android:background="@drawable/bg_icon_blue" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Raj Kumar" android:textColor="#1E293B" android:textSize="14sp" android:textStyle="bold" android:layout_marginTop="8dp"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="⭐ 4.9/5" android:textColor="#F59E0B" android:textSize="12sp" android:layout_marginTop="4dp"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Agent 2 -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="12dp"
+                    android:layout_marginBottom="8dp"
+                    app:cardBackgroundColor="@android:color/white"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="2dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center" android:padding="12dp">
+                        <View android:layout_width="40dp" android:layout_height="40dp" android:background="@drawable/bg_icon_orange" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Amit Singh" android:textColor="#1E293B" android:textSize="14sp" android:textStyle="bold" android:layout_marginTop="8dp"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="⭐ 4.8/5" android:textColor="#F59E0B" android:textSize="12sp" android:layout_marginTop="4dp"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Agent 3 -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="12dp"
+                    android:layout_marginBottom="8dp"
+                    app:cardBackgroundColor="@android:color/white"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="2dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center" android:padding="12dp">
+                        <View android:layout_width="40dp" android:layout_height="40dp" android:background="@drawable/bg_icon_green" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="John D." android:textColor="#1E293B" android:textSize="14sp" android:textStyle="bold" android:layout_marginTop="8dp"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="⭐ 4.7/5" android:textColor="#F59E0B" android:textSize="12sp" android:layout_marginTop="4dp"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+        </HorizontalScrollView>
+
+        <!-- Recent Delivery History -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="12dp"
+            android:text="Recent Operations"
+            android:textColor="#0369A1"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <!-- History Item 1 -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardBackgroundColor="@android:color/white"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="8dp"
+            android:outlineAmbientShadowColor="#0EA5E9"
+            android:outlineSpotShadowColor="#0EA5E9">
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp">
+                
+                <View android:id="@+id/dot1" android:layout_width="12dp" android:layout_height="12dp" android:background="@drawable/bg_icon_green" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent"/>
+                
+                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginStart="16dp" app:layout_constraintStart_toEndOf="@id/dot1" app:layout_constraintTop_toTopOf="parent">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Order #1024" android:textColor="#1E293B" android:textStyle="bold" android:textSize="16sp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Amanora Park Town" android:textColor="#64748B" android:textSize="12sp" android:layout_marginTop="4dp"/>
+                </LinearLayout>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:cardBackgroundColor="#D1FAE5"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="0dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Delivered" android:textColor="#065F46" android:textSize="12sp" android:textStyle="bold" android:paddingHorizontal="8dp" android:paddingVertical="4dp"/>
+                </com.google.android.material.card.MaterialCardView>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- History Item 2 -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardBackgroundColor="@android:color/white"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="8dp"
+            android:outlineAmbientShadowColor="#F59E0B"
+            android:outlineSpotShadowColor="#F59E0B">
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp">
+                
+                <View android:id="@+id/dot2" android:layout_width="12dp" android:layout_height="12dp" android:background="@drawable/bg_icon_orange" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent"/>
+                
+                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginStart="16dp" app:layout_constraintStart_toEndOf="@id/dot2" app:layout_constraintTop_toTopOf="parent">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Order #1025" android:textColor="#1E293B" android:textStyle="bold" android:textSize="16sp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Magarpatta City" android:textColor="#64748B" android:textSize="12sp" android:layout_marginTop="4dp"/>
+                </LinearLayout>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:cardBackgroundColor="#FEF3C7"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="0dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="In Progress" android:textColor="#92400E" android:textSize="12sp" android:textStyle="bold" android:paddingHorizontal="8dp" android:paddingVertical="4dp"/>
+                </com.google.android.material.card.MaterialCardView>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
+        
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_logout_admin"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="32dp"
+            android:text="Logout Admin"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            app:strokeColor="#E63946"
+            android:textColor="#E63946"
+            app:cornerRadius="16dp" />
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

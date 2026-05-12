@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary_blue">#4CC9F0</color>
+    <color name="primary_deep_blue">#4361EE</color>
+    <color name="secondary_blue">#4895EF</color>
+    <color name="success_green">#06D6A0</color>
+    <color name="pending_orange">#FF9F1C</color>
+    <color name="error_red">#E63946</color>
+    <color name="accent_violet">#7209B7</color>
+    <color name="accent_pink">#F72585</color>
+    <color name="soft_blue">#E0E7FF</color>
+    <color name="card_grad_start">#4CC9F0</color>
+    <color name="card_grad_end">#4361EE</color>
+    <color name="surface_light">#F8F9FF</color>
+    <color name="text_primary">#1E293B</color>
+    <color name="text_subtle">#64748B</color>
+    <color name="button_black">#111827</color>
+    <color name="button_gray">#F1F5F9</color>
+    <color name="background_dark">#0B1120</color>
+    <color name="surface_dark">#131C2E</color>
+</resources>

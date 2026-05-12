@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8FAFC"
+    android:orientation="vertical">
+
+    <!-- Top Bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:padding="20dp">
+        
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Active Agents"
+            android:textColor="#0369A1"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Search Bar -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginBottom="16dp"
+        app:cardBackgroundColor="@android:color/white"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="8dp"
+        android:outlineAmbientShadowColor="#94A3B8"
+        android:outlineSpotShadowColor="#94A3B8"
+        app:strokeWidth="0dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp">
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@android:drawable/ic_menu_search"
+                app:tint="#64748B" />
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:background="@null"
+                android:hint="Search agents..."
+                android:textColor="#1E293B"
+                android:textColorHint="#94A3B8"
+                android:textSize="16sp"/>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="16dp"
+        android:paddingHorizontal="20dp"
+        android:clipToPadding="false">
+        
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Agent 1 -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:layout_marginHorizontal="4dp"
+                app:cardBackgroundColor="@android:color/white"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="8dp"
+                android:outlineAmbientShadowColor="#0EA5E9"
+                android:outlineSpotShadowColor="#0EA5E9">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+                        
+                        <!-- Circular Avatar -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="56dp"
+                            android:layout_height="56dp"
+                            app:cardCornerRadius="28dp"
+                            app:cardElevation="0dp"
+                            app:strokeWidth="0dp">
+                            <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:src="@android:drawable/sym_def_app_icon"
+                                android:scaleType="centerCrop"/>
+                        </com.google.android.material.card.MaterialCardView>
+                        
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginStart="16dp">
+                            <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Raj Kumar" android:textColor="#1E293B" android:textSize="18sp" android:textStyle="bold"/>
+                                <View android:layout_width="10dp" android:layout_height="10dp" android:background="@drawable/bg_icon_green" android:layout_marginStart="8dp"/>
+                            </LinearLayout>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Kalyani Nagar Zone" android:textColor="#64748B" android:textSize="14sp" android:layout_marginTop="2dp"/>
+                            
+                            <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="6dp" android:gravity="center_vertical">
+                                <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@android:drawable/star_on" app:tint="#F59E0B" />
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="4.9" android:textColor="#1E293B" android:textSize="12sp" android:textStyle="bold" android:layout_marginStart="4dp"/>
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text=" • 12 Deliveries" android:textColor="#64748B" android:textSize="12sp"/>
+                            </LinearLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+                    
+                    <!-- Divider -->
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E2E8F0" android:layout_marginVertical="16dp" />
+                    
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+                        
+                        <com.google.android.material.button.MaterialButton
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="8dp"
+                            android:text="Message"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            app:strokeColor="#CBD5E1"
+                            android:textColor="#475569" />
+                            
+                        <com.google.android.material.button.MaterialButton
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="8dp"
+                            android:text="Call Agent"
+                            style="@style/Widget.Material3.Button"
+                            app:backgroundTint="#059669"
+                            android:textColor="@android:color/white" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Agent 2 -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:layout_marginHorizontal="4dp"
+                app:cardBackgroundColor="@android:color/white"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="8dp"
+                android:outlineAmbientShadowColor="#0EA5E9"
+                android:outlineSpotShadowColor="#0EA5E9">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+                        
+                        <!-- Circular Avatar -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="56dp"
+                            android:layout_height="56dp"
+                            app:cardCornerRadius="28dp"
+                            app:cardElevation="0dp"
+                            app:strokeWidth="0dp">
+                            <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:src="@android:drawable/sym_def_app_icon"
+                                android:scaleType="centerCrop"/>
+                        </com.google.android.material.card.MaterialCardView>
+                        
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginStart="16dp">
+                            <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Amit Singh" android:textColor="#1E293B" android:textSize="18sp" android:textStyle="bold"/>
+                                <View android:layout_width="10dp" android:layout_height="10dp" android:background="@drawable/bg_icon_orange" android:layout_marginStart="8dp"/>
+                            </LinearLayout>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Viman Nagar Zone" android:textColor="#64748B" android:textSize="14sp" android:layout_marginTop="2dp"/>
+                            
+                            <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="6dp" android:gravity="center_vertical">
+                                <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@android:drawable/star_on" app:tint="#F59E0B" />
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="4.7" android:textColor="#1E293B" android:textSize="12sp" android:textStyle="bold" android:layout_marginStart="4dp"/>
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text=" • 8 Deliveries" android:textColor="#64748B" android:textSize="12sp"/>
+                            </LinearLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+                    
+                    <!-- Divider -->
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E2E8F0" android:layout_marginVertical="16dp" />
+                    
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+                        
+                        <com.google.android.material.button.MaterialButton
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="8dp"
+                            android:text="Message"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            app:strokeColor="#CBD5E1"
+                            android:textColor="#475569" />
+                            
+                        <com.google.android.material.button.MaterialButton
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="8dp"
+                            android:text="Call Agent"
+                            style="@style/Widget.Material3.Button"
+                            app:backgroundTint="#059669"
+                            android:textColor="@android:color/white" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
