@@ -1,118 +1,198 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="12dp"
-    app:cardCornerRadius="24dp"
-    app:cardElevation="0dp"
-    app:cardBackgroundColor="@android:color/white">
+    android:layout_marginBottom="14dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
+    <!-- Drop shadow layer -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_root"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        app:cardCornerRadius="20dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="#FFFFFF"
+        app:strokeColor="#EEF2FF"
+        app:strokeWidth="1dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <!-- Customer Initial Circle -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/initials_card"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            app:cardCornerRadius="24dp"
-            app:cardElevation="0dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- Left accent stripe -->
             <View
-                android:id="@+id/status_dot_bg"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="#1A4361EE" />
-            <TextView
-                android:id="@+id/initials_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="R"
-                android:textColor="#4361EE"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-            <ImageView
-                android:id="@+id/status_icon"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_gravity="center"
-                android:visibility="gone" />
-        </com.google.android.material.card.MaterialCardView>
+                android:id="@+id/accent_bar"
+                android:layout_width="5dp"
+                android:layout_height="0dp"
+                android:background="#4361EE"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
 
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:orientation="vertical"
-            app:layout_constraintEnd_toStartOf="@id/time_layout"
-            app:layout_constraintStart_toEndOf="@id/initials_card"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
+            <!-- Avatar -->
+            <FrameLayout
+                android:id="@+id/initials_card"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="16dp"
+                app:layout_constraintStart_toEndOf="@id/accent_bar"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp">
 
-            <TextView
-                android:id="@+id/customer_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Rahul Sharma"
-                android:textColor="#1E293B"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                <View
+                    android:id="@+id/status_dot_bg"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_avatar_pending" />
 
-            <TextView
-                android:id="@+id/society_name_list"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="Amanora Park Town"
-                android:textColor="#4361EE"
-                android:textSize="12sp" />
-
-            <!-- Done/Pending show under society -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/status_badge_container"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="0dp">
                 <TextView
-                    android:id="@+id/status_text"
+                    android:id="@+id/initials_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="2dp"
-                    android:text="Pending"
-                    android:textSize="11sp"
+                    android:layout_gravity="center"
+                    android:text="R"
+                    android:textColor="#4361EE"
+                    android:textSize="20sp"
                     android:textStyle="bold" />
-            </com.google.android.material.card.MaterialCardView>
-        </LinearLayout>
+            </FrameLayout>
 
-        <LinearLayout
-            android:id="@+id/time_layout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="end"
-            android:orientation="vertical"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
+            <!-- Name + Location + Badge -->
+            <LinearLayout
+                android:id="@+id/info_layout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:orientation="vertical"
+                app:layout_constraintStart_toEndOf="@id/initials_card"
+                app:layout_constraintEnd_toStartOf="@id/right_col"
+                app:layout_constraintTop_toTopOf="@id/initials_card"
+                app:layout_constraintBottom_toBottomOf="@id/initials_card">
 
-            <TextView
-                android:id="@+id/time"
+                <TextView
+                    android:id="@+id/customer_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Rahul Sharma"
+                    android:textColor="#0F172A"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.01"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="11dp"
+                        android:layout_height="11dp"
+                        android:src="@drawable/ic_pin"
+                        app:tint="#94A3B8" />
+
+                    <TextView
+                        android:id="@+id/society_name_list"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:text="Amanora Park Town"
+                        android:textColor="#64748B"
+                        android:textSize="12sp"
+                        android:maxLines="1"
+                        android:ellipsize="end" />
+                </LinearLayout>
+
+                <!-- Status badge -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/status_badge_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="7dp"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="0dp">
+                    <TextView
+                        android:id="@+id/status_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="10dp"
+                        android:paddingTop="3dp"
+                        android:paddingBottom="3dp"
+                        android:text="Pending"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+
+            <!-- Right column: time chip + chevron -->
+            <LinearLayout
+                android:id="@+id/right_col"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="09:30 AM"
-                android:textColor="#64748B"
-                android:textSize="12sp"
-                android:textStyle="bold" />
-        </LinearLayout>
+                android:layout_marginEnd="14dp"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/initials_card"
+                app:layout_constraintBottom_toBottomOf="@id/initials_card">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+                <!-- Time chip -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="10dp"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="#F4F6FF">
 
-</com.google.android.material.card.MaterialCardView>
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:paddingStart="9dp"
+                        android:paddingEnd="9dp"
+                        android:paddingTop="5dp"
+                        android:paddingBottom="5dp"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="11dp"
+                            android:layout_height="11dp"
+                            android:src="@drawable/ic_clock"
+                            app:tint="#4361EE" />
+
+                        <TextView
+                            android:id="@+id/time"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="5dp"
+                            android:text="09:30 AM"
+                            android:textColor="#4361EE"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Chevron -->
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginTop="10dp"
+                    android:src="@drawable/ic_chevron_right" />
+
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

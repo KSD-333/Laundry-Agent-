@@ -220,7 +220,7 @@ public class TasksFragment extends Fragment {
             RecyclerView rv = new RecyclerView(getContext());
             rv.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             rv.setLayoutManager(new LinearLayoutManager(getContext()));
-            rv.setPadding(40, 20, 40, 200);
+            rv.setPadding(48, 24, 48, 220);
             rv.setClipToPadding(false);
 
             List<OrderItem> orders;

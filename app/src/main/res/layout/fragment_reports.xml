@@ -1,115 +1,253 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/surface_light">
+    android:background="#F4F6FF">
 
-    <LinearLayout
+    <!-- ═══════════════════════════════════════════
+         APP BAR
+    ═══════════════════════════════════════════ -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/reports_app_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="24dp">
+        android:background="@android:color/transparent"
+        app:elevation="0dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Daily Report"
-            android:textColor="@color/text_primary"
-            android:textSize="28sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Your performance for today"
-            android:textColor="@color/text_subtle"
-            android:textSize="14sp" />
-
-        <!-- Circular Summary Card -->
-        <com.google.android.material.card.MaterialCardView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            app:cardCornerRadius="32dp"
-            app:cardElevation="0dp"
-            app:strokeColor="@color/button_gray"
-            app:strokeWidth="1dp">
+            android:orientation="vertical"
+            app:layout_scrollFlags="scroll|enterAlways|snap">
+
+            <!-- ── Gradient Header ── -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="24dp">
-                
+                android:background="@drawable/gradient_header"
+                android:orientation="vertical"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:paddingTop="32dp"
+                android:paddingBottom="36dp">
+
+                <!-- Title row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="24dp"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Daily Report"
+                            android:textColor="#FFFFFF"
+                            android:textSize="24sp"
+                            android:textStyle="bold"
+                            android:letterSpacing="0.01" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Your performance for today"
+                            android:textColor="#A8C4FF"
+                            android:textSize="13sp"
+                            android:layout_marginTop="2dp" />
+                    </LinearLayout>
+
+                    <FrameLayout
+                        android:layout_width="44dp"
+                        android:layout_height="44dp">
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_bell_button" />
+                        <ImageView
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_trending_up" />
+                    </FrameLayout>
+                </LinearLayout>
+
+                <!-- Progress + Stat row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <FrameLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="20dp">
+
+                        <com.google.android.material.progressindicator.CircularProgressIndicator
+                            android:id="@+id/report_circular_progress"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:indicatorColor="#06D6A0"
+                            app:trackColor="#28FFFFFF"
+                            app:trackCornerRadius="6dp"
+                            app:trackThickness="10dp"
+                            app:indicatorSize="90dp" />
+
+                        <TextView
+                            android:id="@+id/report_percentage_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="0%"
+                            android:textColor="#FFFFFF"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Overall Progress"
+                            android:textColor="#FFFFFF"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/report_tasks_summary"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0 tasks completed"
+                            android:textColor="#A8C4FF"
+                            android:textSize="13sp"
+                            android:layout_marginTop="4dp" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:orientation="horizontal">
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/bg_glass_card"
+                                android:paddingStart="12dp"
+                                android:paddingEnd="12dp"
+                                android:paddingTop="6dp"
+                                android:paddingBottom="6dp"
+                                android:layout_marginEnd="8dp"
+                                android:orientation="vertical">
+                                <TextView
+                                    android:id="@+id/report_pickup_count"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="5"
+                                    android:textColor="#FFFFFF"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold" />
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Pickups"
+                                    android:textColor="#A8C4FF"
+                                    android:textSize="10sp" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/bg_glass_card"
+                                android:paddingStart="12dp"
+                                android:paddingEnd="12dp"
+                                android:paddingTop="6dp"
+                                android:paddingBottom="6dp"
+                                android:orientation="vertical">
+                                <TextView
+                                    android:id="@+id/report_delivery_count"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="4"
+                                    android:textColor="#FFFFFF"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold" />
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Deliveries"
+                                    android:textColor="#A8C4FF"
+                                    android:textSize="10sp" />
+                            </LinearLayout>
+
+                        </LinearLayout>
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- ── White surface with pill tabs ── -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_surface_rounded_top"
+                android:orientation="vertical"
+                android:paddingTop="24dp"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp">
+
                 <FrameLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
-                    <com.google.android.material.progressindicator.CircularProgressIndicator
-                        android:id="@+id/report_circular_progress"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:indicatorColor="@color/primary_blue"
-                        app:trackColor="@color/button_gray"
-                        app:trackCornerRadius="4dp"
-                        app:trackThickness="8dp"
-                        app:indicatorSize="80dp" />
-                    <TextView
-                        android:id="@+id/report_percentage_text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:text="75%"
-                        android:textColor="@color/text_primary"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginBottom="4dp"
+                    android:background="@drawable/bg_tab_container">
+
+                    <com.google.android.material.tabs.TabLayout
+                        android:id="@+id/report_tab_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@android:color/transparent"
+                        app:tabBackground="@drawable/tab_selector_bg"
+                        app:tabIndicatorHeight="0dp"
+                        app:tabSelectedTextColor="#FFFFFF"
+                        app:tabTextColor="#64748B"
+                        app:tabTextAppearance="@style/PillTabText"
+                        app:tabPaddingStart="6dp"
+                        app:tabPaddingEnd="6dp"
+                        app:tabMode="fixed"
+                        app:tabGravity="fill">
+                        <com.google.android.material.tabs.TabItem android:text="Pickup Tasks" />
+                        <com.google.android.material.tabs.TabItem android:text="Delivery Tasks" />
+                    </com.google.android.material.tabs.TabLayout>
+
                 </FrameLayout>
 
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="24dp"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Overall Progress" android:textColor="@color/text_primary" android:textStyle="bold" />
-                    <TextView android:id="@+id/report_tasks_summary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="18 tasks completed" android:textColor="@color/text_subtle" android:textSize="12sp" />
-                </LinearLayout>
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:text="Pickups"
-            android:textColor="@color/text_primary"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+        </LinearLayout>
+    </com.google.android.material.appbar.AppBarLayout>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/report_pickups_recycler"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:nestedScrollingEnabled="false" />
+    <!-- ═══════════════════════════════════════════
+         VIEWPAGER2  (swipeable, same as Tasks)
+    ═══════════════════════════════════════════ -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/report_view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:text="Deliveries"
-            android:textColor="@color/text_primary"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/report_deliveries_recycler"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:nestedScrollingEnabled="false" />
-
-        <View android:layout_width="match_parent" android:layout_height="100dp" />
-
-    </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
