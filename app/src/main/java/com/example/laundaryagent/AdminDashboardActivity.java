@@ -31,13 +31,20 @@ public class AdminDashboardActivity extends AppCompatActivity {
         findViewById(R.id.card_revenue).setOnClickListener(v -> 
             startActivity(new Intent(this, RevenueActivity.class)));
             
-        findViewById(R.id.card_active_agents).setOnClickListener(v -> 
-            startActivity(new Intent(this, ActiveAgentsActivity.class)));
+        findViewById(R.id.card_total_users).setOnClickListener(v -> 
+            startActivity(new Intent(this, UsersActivity.class)));
             
         findViewById(R.id.card_pending_pickups).setOnClickListener(v -> 
             startActivity(new Intent(this, PendingPickupsActivity.class)));
 
         findViewById(R.id.card_completed_deliveries).setOnClickListener(v -> 
             startActivity(new Intent(this, CompletedDeliveriesActivity.class)));
+
+        // Setup history navigation
+        findViewById(R.id.tv_view_all_history).setOnClickListener(v -> 
+            startActivity(new Intent(this, OrderHistoryActivity.class)));
+            
+        findViewById(R.id.card_history_shortcut).setOnClickListener(v -> 
+            startActivity(new Intent(this, OrderHistoryActivity.class)));
     }
 }

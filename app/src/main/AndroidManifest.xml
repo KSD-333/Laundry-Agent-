@@ -55,6 +55,12 @@
         <activity
             android:name=".HelpCenterActivity"
             android:exported="false" />
+        <activity
+            android:name=".UsersActivity"
+            android:exported="false" />
+        <activity
+            android:name=".OrderHistoryActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

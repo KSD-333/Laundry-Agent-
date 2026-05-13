@@ -1,334 +1,256 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
     android:background="@drawable/bg_surface_rounded_top"
-    android:paddingBottom="32dp">
+    android:orientation="vertical"
+    android:padding="24dp">
 
-    <!-- Handle bar -->
     <View
         android:layout_width="40dp"
         android:layout_height="4dp"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="4dp"
-        android:background="@drawable/bg_stat_bar_pending"
-        android:alpha="0.3"/>
+        android:layout_marginBottom="24dp"
+        android:background="#E2E8F0" />
 
-    <!-- Header -->
+    <TextView
+        android:id="@+id/dialog_order_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="#ORD-0000 · Customer Name"
+        android:textColor="#1E293B"
+        android:textSize="18sp"
+        android:fontFamily="sans-serif-black" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/gradient_header"
-        android:orientation="vertical"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
-        android:paddingTop="20dp"
-        android:paddingBottom="24dp">
+        android:layout_marginTop="8dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:text="Total Items: "
+            android:textColor="#64748B"
+            android:textSize="14sp" />
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Order Details"
-                    android:textColor="#FFFFFF"
-                    android:textSize="20sp"
-                    android:textStyle="bold"/>
-                <TextView
-                    android:id="@+id/dialog_order_id"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="#P1 · Rahul Sharma"
-                    android:textColor="#A8C4FF"
-                    android:textSize="13sp"
-                    android:layout_marginTop="2dp"/>
-            </LinearLayout>
-
-            <!-- Total items badge -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_glass_card"
-                android:paddingStart="14dp"
-                android:paddingEnd="14dp"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
-                android:gravity="center"
-                android:orientation="vertical">
-                <TextView
-                    android:id="@+id/dialog_total_items"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="12"
-                    android:textColor="#FFFFFF"
-                    android:textSize="22sp"
-                    android:textStyle="bold"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Total Items"
-                    android:textColor="#A8C4FF"
-                    android:textSize="10sp"/>
-            </LinearLayout>
-        </LinearLayout>
+        <TextView
+            android:id="@+id/dialog_total_items"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textColor="#0EA5E9"
+            android:textSize="14sp"
+            android:fontFamily="sans-serif-black" />
     </LinearLayout>
 
-    <!-- Service cards -->
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingTop="20dp">
+        android:layout_marginTop="16dp"
+        android:maxHeight="400dp">
 
-        <!-- Laundry -->
         <LinearLayout
-            android:id="@+id/card_laundry"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            android:background="@drawable/bg_service_card"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:orientation="vertical">
 
-            <LinearLayout
+            <!-- Laundry Card -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:layout_marginBottom="12dp">
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="#F8FAFC"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#F1F5F9"
+                app:strokeWidth="1dp">
 
-                <FrameLayout android:layout_width="38dp" android:layout_height="38dp" android:layout_marginEnd="12dp">
-                    <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/bg_menu_icon_blue"/>
-                    <ImageView android:layout_width="20dp" android:layout_height="20dp" android:layout_gravity="center" android:src="@drawable/ic_laundry"/>
-                </FrameLayout>
-
-                <TextView
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Laundry"
-                    android:textColor="#0F172A"
-                    android:textSize="15sp"
-                    android:textStyle="bold"/>
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:cardCornerRadius="8dp"
-                    app:cardElevation="0dp"
-                    app:cardBackgroundColor="#EEF2FF">
-                    <TextView
-                        android:id="@+id/laundry_count"
-                        android:layout_width="wrap_content"
+                    <RelativeLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:paddingStart="10dp"
-                        android:paddingEnd="10dp"
-                        android:paddingTop="3dp"
-                        android:paddingBottom="3dp"
-                        android:text="0 items"
-                        android:textColor="#4361EE"
-                        android:textSize="12sp"
-                        android:textStyle="bold"/>
-                </com.google.android.material.card.MaterialCardView>
-            </LinearLayout>
+                        android:layout_marginBottom="12dp">
 
-            <LinearLayout
-                android:id="@+id/laundry_items_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"/>
-        </LinearLayout>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Laundry"
+                            android:textColor="#4361EE"
+                            android:textSize="14sp"
+                            android:fontFamily="sans-serif-black" />
 
-        <!-- Ironing -->
-        <LinearLayout
-            android:id="@+id/card_ironing"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            android:background="@drawable/bg_service_card"
-            android:orientation="vertical"
-            android:padding="16dp">
+                        <TextView
+                            android:id="@+id/laundry_count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentRight="true"
+                            android:text="0 items"
+                            android:textColor="#64748B"
+                            android:textSize="12sp" />
+                    </RelativeLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:layout_marginBottom="12dp">
-
-                <FrameLayout android:layout_width="38dp" android:layout_height="38dp" android:layout_marginEnd="12dp">
-                    <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/bg_menu_icon_purple"/>
-                    <ImageView android:layout_width="20dp" android:layout_height="20dp" android:layout_gravity="center" android:src="@drawable/ic_iron"/>
-                </FrameLayout>
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Ironing"
-                    android:textColor="#0F172A"
-                    android:textSize="15sp"
-                    android:textStyle="bold"/>
-
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:cardCornerRadius="8dp"
-                    app:cardElevation="0dp"
-                    app:cardBackgroundColor="#F3E8FF">
-                    <TextView
-                        android:id="@+id/ironing_count"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:id="@+id/laundry_items_container"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:paddingStart="10dp"
-                        android:paddingEnd="10dp"
-                        android:paddingTop="3dp"
-                        android:paddingBottom="3dp"
-                        android:text="0 items"
-                        android:textColor="#7209B7"
-                        android:textSize="12sp"
-                        android:textStyle="bold"/>
-                </com.google.android.material.card.MaterialCardView>
-            </LinearLayout>
+                        android:orientation="vertical" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-            <LinearLayout
-                android:id="@+id/ironing_items_container"
+            <!-- Ironing Card -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"/>
-        </LinearLayout>
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="#F8FAFC"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#F1F5F9"
+                app:strokeWidth="1dp">
 
-        <!-- Dry Cleaning -->
-        <LinearLayout
-            android:id="@+id/card_dryclean"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            android:background="@drawable/bg_service_card"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:layout_marginBottom="12dp">
-
-                <FrameLayout android:layout_width="38dp" android:layout_height="38dp" android:layout_marginEnd="12dp">
-                    <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/bg_menu_icon_green"/>
-                    <ImageView android:layout_width="20dp" android:layout_height="20dp" android:layout_gravity="center" android:src="@drawable/ic_dryclean"/>
-                </FrameLayout>
-
-                <TextView
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Dry Cleaning"
-                    android:textColor="#0F172A"
-                    android:textSize="15sp"
-                    android:textStyle="bold"/>
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:cardCornerRadius="8dp"
-                    app:cardElevation="0dp"
-                    app:cardBackgroundColor="#ECFDF5">
-                    <TextView
-                        android:id="@+id/dryclean_count"
-                        android:layout_width="wrap_content"
+                    <RelativeLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:paddingStart="10dp"
-                        android:paddingEnd="10dp"
-                        android:paddingTop="3dp"
-                        android:paddingBottom="3dp"
-                        android:text="0 items"
-                        android:textColor="#06D6A0"
-                        android:textSize="12sp"
-                        android:textStyle="bold"/>
-                </com.google.android.material.card.MaterialCardView>
-            </LinearLayout>
+                        android:layout_marginBottom="12dp">
 
-            <LinearLayout
-                android:id="@+id/dryclean_items_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"/>
-        </LinearLayout>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Ironing"
+                            android:textColor="#7209B7"
+                            android:textSize="14sp"
+                            android:fontFamily="sans-serif-black" />
 
-        <!-- Shoe Care -->
-        <LinearLayout
-            android:id="@+id/card_shoecare"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_service_card"
-            android:orientation="vertical"
-            android:padding="16dp">
+                        <TextView
+                            android:id="@+id/ironing_count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentRight="true"
+                            android:text="0 items"
+                            android:textColor="#64748B"
+                            android:textSize="12sp" />
+                    </RelativeLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:layout_marginBottom="12dp">
-
-                <FrameLayout android:layout_width="38dp" android:layout_height="38dp" android:layout_marginEnd="12dp">
-                    <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/bg_menu_icon_orange"/>
-                    <ImageView android:layout_width="20dp" android:layout_height="20dp" android:layout_gravity="center" android:src="@drawable/ic_shoe"/>
-                </FrameLayout>
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Shoe Care"
-                    android:textColor="#0F172A"
-                    android:textSize="15sp"
-                    android:textStyle="bold"/>
-
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:cardCornerRadius="8dp"
-                    app:cardElevation="0dp"
-                    app:cardBackgroundColor="#FFF7ED">
-                    <TextView
-                        android:id="@+id/shoecare_count"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:id="@+id/ironing_items_container"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:paddingStart="10dp"
-                        android:paddingEnd="10dp"
-                        android:paddingTop="3dp"
-                        android:paddingBottom="3dp"
-                        android:text="0 items"
-                        android:textColor="#FF9F1C"
-                        android:textSize="12sp"
-                        android:textStyle="bold"/>
-                </com.google.android.material.card.MaterialCardView>
-            </LinearLayout>
+                        android:orientation="vertical" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-            <LinearLayout
-                android:id="@+id/shoecare_items_container"
+            <!-- Dry Cleaning Card -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"/>
-        </LinearLayout>
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="#F8FAFC"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#F1F5F9"
+                app:strokeWidth="1dp">
 
-    </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Dry Cleaning"
+                            android:textColor="#06D6A0"
+                            android:textSize="14sp"
+                            android:fontFamily="sans-serif-black" />
+
+                        <TextView
+                            android:id="@+id/dryclean_count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentRight="true"
+                            android:text="0 items"
+                            android:textColor="#64748B"
+                            android:textSize="12sp" />
+                    </RelativeLayout>
+
+                    <LinearLayout
+                        android:id="@+id/dryclean_items_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Shoe Care Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="#F8FAFC"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#F1F5F9"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Shoe Care"
+                            android:textColor="#FF9F1C"
+                            android:textSize="14sp"
+                            android:fontFamily="sans-serif-black" />
+
+                        <TextView
+                            android:id="@+id/shoecare_count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentRight="true"
+                            android:text="0 items"
+                            android:textColor="#64748B"
+                            android:textSize="12sp" />
+                    </RelativeLayout>
+
+                    <LinearLayout
+                        android:id="@+id/shoecare_items_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
 </LinearLayout>

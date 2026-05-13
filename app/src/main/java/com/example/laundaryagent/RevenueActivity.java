@@ -7,6 +7,10 @@ import android.widget.PopupMenu;
 import android.view.MenuItem;
 
 import androidx.appcompat.app.AppCompatActivity;
+import android.view.View;
+import android.widget.PopupWindow;
+import android.graphics.drawable.ColorDrawable;
+import android.view.ViewGroup;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.datepicker.MaterialDatePicker;
@@ -56,31 +60,49 @@ public class RevenueActivity extends AppCompatActivity {
     }
 
     private void showFilterMenu() {
-        PopupMenu popupMenu = new PopupMenu(this, btnFilter);
-        popupMenu.getMenu().add("Past 1 Day");
-        popupMenu.getMenu().add("Past 1 Week");
-        popupMenu.getMenu().add("Past 1 Month");
-        popupMenu.getMenu().add("Past 3 Months");
-        popupMenu.getMenu().add("Past 6 Months");
-        popupMenu.getMenu().add("Past 1 Year");
-        popupMenu.getMenu().add("Custom Date Range");
+        View popupView = getLayoutInflater().inflate(R.layout.layout_custom_dropdown, null);
+        PopupWindow popupWindow = new PopupWindow(popupView, 
+            ViewGroup.LayoutParams.WRAP_CONTENT, 
+            ViewGroup.LayoutParams.WRAP_CONTENT, true);
 
-        popupMenu.setOnMenuItemClickListener(item -> {
-            String title = item.getTitle().toString();
-            if (title.equals("Custom Date Range")) {
-                showCustomDatePicker();
-            } else {
-                tvCurrentFilter.setText(title);
-                if (title.equals("Past 1 Day")) updateGraphData("1D");
-                else if (title.equals("Past 1 Week")) updateGraphData("1W");
-                else if (title.equals("Past 1 Month")) updateGraphData("1M");
-                else if (title.equals("Past 3 Months")) updateGraphData("3M");
-                else if (title.equals("Past 6 Months")) updateGraphData("6M");
-                else if (title.equals("Past 1 Year")) updateGraphData("1Y");
+        popupWindow.setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        popupWindow.setElevation(20);
+
+        android.widget.LinearLayout optionsLayout = popupView.findViewById(R.id.ll_dropdown_options);
+
+        String[] ranges = {"Past 1 Day", "Past 1 Week", "Past 1 Month", "Past 3 Months", "Past 6 Months", "Past 1 Year", "Custom Date Range"};
+        int[] icons = {R.drawable.ic_clock, R.drawable.ic_nav_reports, R.drawable.ic_nav_reports, R.drawable.ic_nav_reports, R.drawable.ic_nav_reports, R.drawable.ic_nav_reports, R.drawable.ic_calendar};
+
+        for (int i = 0; i < ranges.length; i++) {
+            final String range = ranges[i];
+            View itemView = getLayoutInflater().inflate(R.layout.item_filter_option, null);
+            ((TextView) itemView.findViewById(R.id.tv_option_text)).setText(range);
+            ((android.widget.ImageView) itemView.findViewById(R.id.iv_option_icon)).setImageResource(icons[i]);
+            
+            if (tvCurrentFilter.getText().toString().equals(range)) {
+                itemView.findViewById(R.id.iv_check).setVisibility(View.VISIBLE);
+                ((com.google.android.material.card.MaterialCardView) itemView.findViewById(R.id.card_option_icon)).setCardBackgroundColor(0xFFE0F2FE);
+                ((android.widget.ImageView) itemView.findViewById(R.id.iv_option_icon)).setColorFilter(0xFF0EA5E9);
             }
-            return true;
-        });
-        popupMenu.show();
+
+            itemView.setOnClickListener(v -> {
+                popupWindow.dismiss();
+                if (range.equals("Custom Date Range")) {
+                    showCustomDatePicker();
+                } else {
+                    tvCurrentFilter.setText(range);
+                    if (range.equals("Past 1 Day")) updateGraphData("1D");
+                    else if (range.equals("Past 1 Week")) updateGraphData("1W");
+                    else if (range.equals("Past 1 Month")) updateGraphData("1M");
+                    else if (range.equals("Past 3 Months")) updateGraphData("3M");
+                    else if (range.equals("Past 6 Months")) updateGraphData("6M");
+                    else if (range.equals("Past 1 Year")) updateGraphData("1Y");
+                }
+            });
+            optionsLayout.addView(itemView);
+        }
+
+        popupWindow.showAsDropDown(btnFilter, 0, 10);
     }
 
     private void updateGraphData(String range) {

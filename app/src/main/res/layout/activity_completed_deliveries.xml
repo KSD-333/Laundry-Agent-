@@ -66,6 +66,7 @@
 
             <!-- Order 1 -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_delivery_1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
@@ -96,22 +97,45 @@
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Vikas Joshi" android:textColor="#1E293B" android:textSize="18sp" android:textStyle="bold" android:layout_marginTop="12dp"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="C-201, Amanora Park Town, Pune" android:textColor="#64748B" android:textSize="14sp" android:layout_marginTop="4dp"/>
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
                         android:layout_marginTop="16dp"
-                        android:gravity="center_vertical">
+                        app:cardBackgroundColor="#F0FDF4"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="1dp"
+                        app:strokeColor="#DCFCE7">
                         
-                        <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@android:drawable/checkbox_on_background" app:tint="#10B981" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Agent: Raj Kumar" android:textColor="#10B981" android:textSize="14sp" android:textStyle="bold" android:layout_marginStart="8dp"/>
-                        
-                    </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="12dp"
+                            android:paddingVertical="8dp"
+                            android:gravity="center_vertical">
+                            
+                            <ImageView 
+                                android:layout_width="16dp" 
+                                android:layout_height="16dp" 
+                                android:src="@drawable/ic_user" 
+                                app:tint="#166534" />
+                            <TextView 
+                                android:layout_width="wrap_content" 
+                                android:layout_height="wrap_content" 
+                                android:text="Agent: Raj Kumar" 
+                                android:textColor="#166534" 
+                                android:textSize="13sp" 
+                                android:fontFamily="sans-serif-bold" 
+                                android:layout_marginStart="8dp"/>
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <!-- Order 2 -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_delivery_2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
@@ -142,17 +166,39 @@
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Mrs. Mehta" android:textColor="#1E293B" android:textSize="18sp" android:textStyle="bold" android:layout_marginTop="12dp"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Villa 44, Magarpatta City, Pune" android:textColor="#64748B" android:textSize="14sp" android:layout_marginTop="4dp"/>
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
                         android:layout_marginTop="16dp"
-                        android:gravity="center_vertical">
+                        app:cardBackgroundColor="#F0FDF4"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="1dp"
+                        app:strokeColor="#DCFCE7">
                         
-                        <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@android:drawable/checkbox_on_background" app:tint="#10B981" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Agent: Amit Singh" android:textColor="#10B981" android:textSize="14sp" android:textStyle="bold" android:layout_marginStart="8dp"/>
-                        
-                    </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="12dp"
+                            android:paddingVertical="8dp"
+                            android:gravity="center_vertical">
+                            
+                            <ImageView 
+                                android:layout_width="16dp" 
+                                android:layout_height="16dp" 
+                                android:src="@drawable/ic_user" 
+                                app:tint="#166534" />
+                            <TextView 
+                                android:layout_width="wrap_content" 
+                                android:layout_height="wrap_content" 
+                                android:text="Agent: Amit Singh" 
+                                android:textColor="#166534" 
+                                android:textSize="13sp" 
+                                android:fontFamily="sans-serif-bold" 
+                                android:layout_marginStart="8dp"/>
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

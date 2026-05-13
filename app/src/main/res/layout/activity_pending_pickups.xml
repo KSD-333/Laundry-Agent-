@@ -66,6 +66,7 @@
 
             <!-- Order 1 -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_pickup_1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
@@ -96,20 +97,13 @@
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Mrs. Sharma" android:textColor="#1E293B" android:textSize="18sp" android:textStyle="bold" android:layout_marginTop="12dp"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="B-402, Amanora Park Town, Pune" android:textColor="#64748B" android:textSize="14sp" android:layout_marginTop="4dp"/>
 
-                    <com.google.android.material.button.MaterialButton
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:layout_marginTop="16dp"
-                        android:text="Assign Agent"
-                        style="@style/Widget.Material3.Button"
-                        app:backgroundTint="#0EA5E9"
-                        android:textColor="@android:color/white"
-                        app:cornerRadius="12dp" />
+
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <!-- Order 2 -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_pickup_2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
@@ -140,15 +134,7 @@
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Rahul Patil" android:textColor="#1E293B" android:textSize="18sp" android:textStyle="bold" android:layout_marginTop="12dp"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="A-101, Magarpatta City, Pune" android:textColor="#64748B" android:textSize="14sp" android:layout_marginTop="4dp"/>
 
-                    <com.google.android.material.button.MaterialButton
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:layout_marginTop="16dp"
-                        android:text="Assign Agent"
-                        style="@style/Widget.Material3.Button"
-                        app:backgroundTint="#0EA5E9"
-                        android:textColor="@android:color/white"
-                        app:cornerRadius="12dp" />
+
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
