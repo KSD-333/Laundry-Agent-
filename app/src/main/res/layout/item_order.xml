@@ -135,7 +135,7 @@
 
             </LinearLayout>
 
-            <!-- Right column: time chip + chevron -->
+            <!-- Right column: chevron only -->
             <LinearLayout
                 android:id="@+id/right_col"
                 android:layout_width="wrap_content"
@@ -147,47 +147,10 @@
                 app:layout_constraintTop_toTopOf="@id/initials_card"
                 app:layout_constraintBottom_toBottomOf="@id/initials_card">
 
-                <!-- Time chip -->
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:cardCornerRadius="10dp"
-                    app:cardElevation="0dp"
-                    app:cardBackgroundColor="#F4F6FF">
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:paddingStart="9dp"
-                        android:paddingEnd="9dp"
-                        android:paddingTop="5dp"
-                        android:paddingBottom="5dp"
-                        android:orientation="horizontal">
-
-                        <ImageView
-                            android:layout_width="11dp"
-                            android:layout_height="11dp"
-                            android:src="@drawable/ic_clock"
-                            app:tint="#4361EE" />
-
-                        <TextView
-                            android:id="@+id/time"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="5dp"
-                            android:text="09:30 AM"
-                            android:textColor="#4361EE"
-                            android:textSize="11sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <!-- Chevron -->
                 <ImageView
+                    android:id="@+id/chevron_icon"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    android:layout_marginTop="10dp"
                     android:src="@drawable/ic_chevron_right" />
 
             </LinearLayout>

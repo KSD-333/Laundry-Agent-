@@ -30,13 +30,25 @@
         app:cardElevation="0dp"
         app:strokeColor="#F1F5F9"
         app:strokeWidth="1dp">
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:paddingHorizontal="16dp">
-            <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@android:drawable/ic_menu_search" app:tint="#94A3B8" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/white"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@android:drawable/ic_menu_search"
+                app:tint="#94A3B8" />
+
             <EditText
                 android:id="@+id/society_search_edit"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:background="@android:color/transparent"
+                android:background="@android:color/white"
                 android:hint="Search societies..."
                 android:imeOptions="actionSearch"
                 android:inputType="text"

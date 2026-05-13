@@ -89,8 +89,20 @@ public class TasksFragment extends Fragment {
         // Hook up Map Icon
         view.findViewById(R.id.map_location_button).setOnClickListener(v -> openSocietyMap());
 
+        // Hook up Bell / Notification button
+        view.findViewById(R.id.notification_card).setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), NotificationsActivity.class);
+            startActivity(intent);
+        });
+
         updateCounts();
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateCounts();
     }
 
     private void showSocietyPicker() {
@@ -199,6 +211,8 @@ public class TasksFragment extends Fragment {
     public static class TaskListPageFragment extends Fragment {
         private int tabType;
         private String society;
+        private OrderAdapter adapter;
+        private RecyclerView rv;
 
         public static TaskListPageFragment newInstance(int type, String society) {
             TaskListPageFragment fragment = new TaskListPageFragment();
@@ -217,12 +231,25 @@ public class TasksFragment extends Fragment {
             society = args != null ? args.getString("society") : "All Societies";
             if (society == null) society = "All Societies";
 
-            RecyclerView rv = new RecyclerView(getContext());
+            rv = new RecyclerView(getContext());
             rv.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             rv.setLayoutManager(new LinearLayoutManager(getContext()));
             rv.setPadding(48, 24, 48, 220);
             rv.setClipToPadding(false);
 
+            loadOrders();
+            return rv;
+        }
+
+        @Override
+        public void onResume() {
+            super.onResume();
+            // Refresh list every time we come back (e.g. after completing a pickup)
+            loadOrders();
+        }
+
+        private void loadOrders() {
+            if (rv == null) return;
             List<OrderItem> orders;
             if (tabType == 0) {
                 orders = LaundryRepository.getInstance().getFilteredPickups(society);
@@ -230,7 +257,7 @@ public class TasksFragment extends Fragment {
                 orders = LaundryRepository.getInstance().getFilteredDeliveries(society);
             }
 
-            OrderAdapter adapter = new OrderAdapter(orders, order -> {
+            adapter = new OrderAdapter(orders, order -> {
                 Intent intent;
                 if (tabType == 0) {
                     intent = new Intent(getActivity(), PickupDetailActivity.class);
@@ -238,11 +265,11 @@ public class TasksFragment extends Fragment {
                     intent = new Intent(getActivity(), DeliveryDetailActivity.class);
                 }
                 intent.putExtra("order_id", order.getId());
+                intent.putExtra("read_only",
+                        order.getStatus() == OrderStatus.COMPLETED);
                 startActivity(intent);
             });
             rv.setAdapter(adapter);
-
-            return rv;
         }
     }
 

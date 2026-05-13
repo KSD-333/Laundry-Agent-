@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -22,39 +21,40 @@ public class ProfileFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        View logoutBtn = view.findViewById(R.id.logout_button_card);
-        logoutBtn.setOnClickListener(v -> {
-            v.animate().scaleX(0.96f).scaleY(0.96f).setDuration(80)
-                    .withEndAction(() ->
-                            v.animate().scaleX(1f).scaleY(1f).setDuration(120).start())
-                    .start();
-            handleLogout();
+        // Personal Information
+        view.findViewById(R.id.menu_personal_info).setOnClickListener(v -> {
+            animateClick(v);
+            startActivity(new Intent(getActivity(), PersonalInfoActivity.class));
         });
 
-        // Animate menu rows in
-        animateChildren(view);
+        // Help Center
+        view.findViewById(R.id.menu_help_center).setOnClickListener(v -> {
+            animateClick(v);
+            startActivity(new Intent(getActivity(), HelpCenterActivity.class));
+        });
+
+        // Logout
+        view.findViewById(R.id.logout_button_card).setOnClickListener(v -> {
+            animateClick(v);
+            handleLogout();
+        });
 
         return view;
     }
 
-    private void animateChildren(View root) {
-        int[] ids = {
-                R.id.logout_button_card
-        };
-        // Animate the whole surface content
-        View surface = root.findViewWithTag("surface");
-        if (surface == null) return;
+    private void animateClick(View v) {
+        v.animate().scaleX(0.96f).scaleY(0.96f).setDuration(80)
+                .withEndAction(() ->
+                        v.animate().scaleX(1f).scaleY(1f).setDuration(120).start())
+                .start();
     }
 
     private void handleLogout() {
         if (getActivity() == null) return;
-
         SharedPreferences prefs = getActivity()
                 .getSharedPreferences("LaundryPrefs", Context.MODE_PRIVATE);
         prefs.edit().clear().apply();
-
         Toast.makeText(getContext(), "Logged out successfully", Toast.LENGTH_SHORT).show();
-
         Intent intent = new Intent(getActivity(), LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);

@@ -74,6 +74,26 @@ public class ReportsFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (getView() == null) return;
+        // Refresh progress ring when returning from detail screen
+        List<OrderItem> pickups   = repository.getPickupOrders();
+        List<OrderItem> deliveries = repository.getDeliveryOrders();
+        int total = pickups.size() + deliveries.size();
+        int completed = 0;
+        for (OrderItem o : pickups)    if (o.getStatus() == OrderStatus.COMPLETED) completed++;
+        for (OrderItem o : deliveries) if (o.getStatus() == OrderStatus.COMPLETED) completed++;
+        int percent = total > 0 ? (completed * 100) / total : 0;
+        CircularProgressIndicator progress = getView().findViewById(R.id.report_circular_progress);
+        TextView percentageText = getView().findViewById(R.id.report_percentage_text);
+        TextView summaryText    = getView().findViewById(R.id.report_tasks_summary);
+        if (progress != null) progress.setProgress(percent, true);
+        if (percentageText != null) percentageText.setText(percent + "%");
+        if (summaryText != null) summaryText.setText(completed + " of " + total + " completed");
+    }
+
     // ── Pager adapter ──────────────────────────────────────────────────────
     private static class ReportPagerAdapter extends FragmentStateAdapter {
         ReportPagerAdapter(ReportsFragment f) { super(f); }
@@ -93,6 +113,10 @@ public class ReportsFragment extends Fragment {
 
         private static final String ARG_TYPE = "type";
 
+        // Keep references so onResume can refresh them
+        private RecyclerView rv;
+        private boolean isPickup;
+
         public static ReportPageFragment newInstance(int type) {
             ReportPageFragment f = new ReportPageFragment();
             Bundle args = new Bundle();
@@ -108,40 +132,69 @@ public class ReportsFragment extends Fragment {
             View view = inflater.inflate(R.layout.fragment_report_page, container, false);
 
             int type = getArguments() != null ? getArguments().getInt(ARG_TYPE, 0) : 0;
-            boolean isPickup = (type == 0);
+            isPickup = (type == 0);
 
-            LaundryRepository repo = LaundryRepository.getInstance();
-            List<OrderItem> orders = isPickup
-                    ? repo.getPickupOrders()
-                    : repo.getDeliveryOrders();
-
-            // Section label
+            // Style the section header (only needs to happen once)
             TextView label  = view.findViewById(R.id.section_label);
             TextView badge  = view.findViewById(R.id.section_badge);
             View accentBar  = view.findViewById(R.id.section_accent_bar);
             MaterialCardView badgeCard = (MaterialCardView) badge.getParent();
 
             label.setText(isPickup ? "Pickups" : "Deliveries");
-            badge.setText(String.valueOf(orders.size()));
 
             if (isPickup) {
-                // teal-green accent
                 accentBar.setBackgroundColor(Color.parseColor("#06D6A0"));
                 badge.setTextColor(Color.parseColor("#4361EE"));
                 badgeCard.setCardBackgroundColor(Color.parseColor("#EEF2FF"));
             } else {
-                // amber accent
                 accentBar.setBackgroundColor(Color.parseColor("#FF9F1C"));
                 badge.setTextColor(Color.parseColor("#FF9F1C"));
                 badgeCard.setCardBackgroundColor(Color.parseColor("#FFF7ED"));
             }
 
-            // RecyclerView
-            RecyclerView rv = view.findViewById(R.id.report_page_recycler);
+            rv = view.findViewById(R.id.report_page_recycler);
             rv.setLayoutManager(new LinearLayoutManager(getContext()));
-            rv.setAdapter(new OrderAdapter(orders, order -> {}));
 
+            loadOrders();
             return view;
+        }
+
+        @Override
+        public void onResume() {
+            super.onResume();
+            // Refresh list every time we return (e.g. after completing a task)
+            loadOrders();
+        }
+
+        private void loadOrders() {
+            if (rv == null) return;
+
+            LaundryRepository repo = LaundryRepository.getInstance();
+            // Use filtered (sorted: pending first, completed last) — same as Tasks screen
+            List<OrderItem> orders = isPickup
+                    ? repo.getFilteredPickups("All Societies")
+                    : repo.getFilteredDeliveries("All Societies");
+
+            // Update badge count
+            View root = getView();
+            if (root != null) {
+                TextView badge = root.findViewById(R.id.section_badge);
+                if (badge != null) badge.setText(String.valueOf(orders.size()));
+            }
+
+            rv.setAdapter(new OrderAdapter(orders, order -> {
+                android.content.Intent intent;
+                if (isPickup) {
+                    intent = new android.content.Intent(getActivity(), PickupDetailActivity.class);
+                } else {
+                    intent = new android.content.Intent(getActivity(), DeliveryDetailActivity.class);
+                }
+                intent.putExtra("order_id", order.getId());
+                // Pass read-only flag for completed orders
+                intent.putExtra("read_only",
+                        order.getStatus() == com.example.laundaryagent.data.model.OrderStatus.COMPLETED);
+                startActivity(intent);
+            }));
         }
     }
 }

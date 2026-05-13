@@ -217,10 +217,9 @@
                 android:letterSpacing="0.1"
                 android:layout_marginBottom="12dp" />
 
-            <!-- ── Menu rows ── -->
-
             <!-- Personal Information -->
             <LinearLayout
+                android:id="@+id/menu_personal_info"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_marginBottom="10dp"
@@ -234,15 +233,8 @@
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_marginEnd="14dp">
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/bg_menu_icon_blue" />
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_user" />
+                    <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/bg_menu_icon_blue" />
+                    <ImageView android:layout_width="20dp" android:layout_height="20dp" android:layout_gravity="center" android:src="@drawable/ic_user" />
                 </FrameLayout>
 
                 <TextView
@@ -254,96 +246,12 @@
                     android:textSize="14sp"
                     android:textStyle="bold" />
 
-                <ImageView
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
-                    android:src="@drawable/ic_chevron_right" />
-            </LinearLayout>
-
-            <!-- Duty Schedule -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_marginBottom="10dp"
-                android:background="@drawable/bg_menu_row"
-                android:gravity="center_vertical"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:orientation="horizontal">
-
-                <FrameLayout
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_marginEnd="14dp">
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/bg_menu_icon_purple" />
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_calendar" />
-                </FrameLayout>
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Duty Schedule"
-                    android:textColor="#0F172A"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <ImageView
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
-                    android:src="@drawable/ic_chevron_right" />
-            </LinearLayout>
-
-            <!-- Earnings & Incentives -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_marginBottom="10dp"
-                android:background="@drawable/bg_menu_row"
-                android:gravity="center_vertical"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:orientation="horizontal">
-
-                <FrameLayout
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_marginEnd="14dp">
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/bg_menu_icon_green" />
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_dollar" />
-                </FrameLayout>
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Earnings &amp; Incentives"
-                    android:textColor="#0F172A"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <ImageView
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
-                    android:src="@drawable/ic_chevron_right" />
+                <ImageView android:layout_width="18dp" android:layout_height="18dp" android:src="@drawable/ic_chevron_right" />
             </LinearLayout>
 
             <!-- Help Center -->
             <LinearLayout
+                android:id="@+id/menu_help_center"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_marginBottom="28dp"
@@ -357,15 +265,8 @@
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_marginEnd="14dp">
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/bg_menu_icon_orange" />
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_help" />
+                    <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/bg_menu_icon_orange" />
+                    <ImageView android:layout_width="20dp" android:layout_height="20dp" android:layout_gravity="center" android:src="@drawable/ic_help" />
                 </FrameLayout>
 
                 <TextView
@@ -377,10 +278,7 @@
                     android:textSize="14sp"
                     android:textStyle="bold" />
 
-                <ImageView
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
-                    android:src="@drawable/ic_chevron_right" />
+                <ImageView android:layout_width="18dp" android:layout_height="18dp" android:src="@drawable/ic_chevron_right" />
             </LinearLayout>
 
             <!-- ── Logout ── -->
@@ -392,10 +290,7 @@
                 android:gravity="center"
                 android:orientation="horizontal">
 
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_logout" />
+                <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_logout" />
 
                 <TextView
                     android:layout_width="wrap_content"

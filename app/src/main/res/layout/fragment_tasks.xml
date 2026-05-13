@@ -131,7 +131,7 @@
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <!-- Row 2: Stat Cards -->
+                <!-- Row 2: Stat Cards — compact -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -144,55 +144,44 @@
                         android:layout_weight="1"
                         android:layout_marginEnd="8dp"
                         android:background="@drawable/bg_glass_card"
-                        android:orientation="vertical"
-                        android:padding="18dp">
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="12dp">
+
+                        <FrameLayout
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:layout_marginEnd="10dp">
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:background="@drawable/bg_stat_icon_done" />
+                            <ImageView
+                                android:layout_width="14dp"
+                                android:layout_height="14dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_check_circle" />
+                        </FrameLayout>
 
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <FrameLayout
-                                android:layout_width="28dp"
-                                android:layout_height="28dp">
-                                <View
-                                    android:layout_width="match_parent"
-                                    android:layout_height="match_parent"
-                                    android:background="@drawable/bg_stat_icon_done" />
-                                <ImageView
-                                    android:layout_width="14dp"
-                                    android:layout_height="14dp"
-                                    android:layout_gravity="center"
-                                    android:src="@drawable/ic_check_circle" />
-                            </FrameLayout>
-
+                            android:orientation="vertical">
+                            <TextView
+                                android:id="@+id/done_count"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textColor="#FFFFFF"
+                                android:textSize="22sp"
+                                android:textStyle="bold" />
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginStart="8dp"
-                                android:text="Completed"
+                                android:text="Done"
                                 android:textColor="#B8D4FF"
-                                android:textSize="11sp"
-                                android:letterSpacing="0.04" />
+                                android:textSize="10sp" />
                         </LinearLayout>
-
-                        <TextView
-                            android:id="@+id/done_count"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="0"
-                            android:textColor="#FFFFFF"
-                            android:textSize="34sp"
-                            android:textStyle="bold"
-                            android:lineSpacingExtra="-4dp" />
-
-                        <View
-                            android:layout_width="32dp"
-                            android:layout_height="3dp"
-                            android:layout_marginTop="8dp"
-                            android:background="@drawable/bg_stat_bar_done" />
                     </LinearLayout>
 
                     <!-- Pending -->
@@ -202,55 +191,44 @@
                         android:layout_weight="1"
                         android:layout_marginStart="8dp"
                         android:background="@drawable/bg_glass_card"
-                        android:orientation="vertical"
-                        android:padding="18dp">
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="12dp">
+
+                        <FrameLayout
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:layout_marginEnd="10dp">
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:background="@drawable/bg_stat_icon_pending" />
+                            <ImageView
+                                android:layout_width="14dp"
+                                android:layout_height="14dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_clock" />
+                        </FrameLayout>
 
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <FrameLayout
-                                android:layout_width="28dp"
-                                android:layout_height="28dp">
-                                <View
-                                    android:layout_width="match_parent"
-                                    android:layout_height="match_parent"
-                                    android:background="@drawable/bg_stat_icon_pending" />
-                                <ImageView
-                                    android:layout_width="14dp"
-                                    android:layout_height="14dp"
-                                    android:layout_gravity="center"
-                                    android:src="@drawable/ic_clock" />
-                            </FrameLayout>
-
+                            android:orientation="vertical">
+                            <TextView
+                                android:id="@+id/pending_count"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textColor="#FFFFFF"
+                                android:textSize="22sp"
+                                android:textStyle="bold" />
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginStart="8dp"
                                 android:text="Pending"
                                 android:textColor="#B8D4FF"
-                                android:textSize="11sp"
-                                android:letterSpacing="0.04" />
+                                android:textSize="10sp" />
                         </LinearLayout>
-
-                        <TextView
-                            android:id="@+id/pending_count"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="0"
-                            android:textColor="#FFFFFF"
-                            android:textSize="34sp"
-                            android:textStyle="bold"
-                            android:lineSpacingExtra="-4dp" />
-
-                        <View
-                            android:layout_width="32dp"
-                            android:layout_height="3dp"
-                            android:layout_marginTop="8dp"
-                            android:background="@drawable/bg_stat_bar_pending" />
                     </LinearLayout>
 
                 </LinearLayout>

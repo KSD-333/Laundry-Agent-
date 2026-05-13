@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_dialog_card"
+    android:padding="28dp">
+
+    <!-- Icon -->
+    <FrameLayout
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="20dp">
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_dialog_icon_bg"/>
+        <ImageView
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_camera"
+            app:tint="#4361EE"/>
+    </FrameLayout>
+
+    <!-- Title -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="No Photos Captured"
+        android:textColor="#0F172A"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="10dp"/>
+
+    <!-- Message -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center"
+        android:text="Photos help verify the condition of clothes at pickup. Please capture at least one photo."
+        android:textColor="#64748B"
+        android:textSize="13sp"
+        android:lineSpacingExtra="3dp"
+        android:layout_marginBottom="28dp"/>
+
+    <!-- Take Photo button -->
+    <LinearLayout
+        android:id="@+id/dialog_btn_take_photo"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/bg_complete_btn"
+        android:gravity="center"
+        android:orientation="horizontal">
+        <ImageView
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_camera"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:text="Take Photo Now"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp"
+            android:textStyle="bold"/>
+    </LinearLayout>
+
+    <!-- Skip button -->
+    <LinearLayout
+        android:id="@+id/dialog_btn_skip"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@drawable/bg_dialog_skip_btn"
+        android:gravity="center"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Skip &amp; Complete"
+            android:textColor="#94A3B8"
+            android:textSize="14sp"
+            android:textStyle="bold"/>
+    </LinearLayout>
+
+</LinearLayout>
