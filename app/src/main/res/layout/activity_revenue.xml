@@ -1,171 +1,334 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8FAFC"
-    tools:context=".RevenueActivity">
+    android:background="#F8FAFC">
 
-    <LinearLayout
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/revenue_appbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp">
+        android:background="@android:color/transparent"
+        app:elevation="0dp">
 
-        <!-- Top Bar -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginBottom="24dp">
-            
+            android:background="@drawable/gradient_header"
+            android:orientation="vertical"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:paddingTop="36dp"
+            android:paddingBottom="40dp"
+            app:layout_scrollFlags="scroll|enterAlways|snap">
+
+            <!-- Back + Title row -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="28dp">
+
+                <FrameLayout
+                    android:id="@+id/btn_back"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent">
+                    <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/bg_bell_button" android:alpha="0.15"/>
+                    <ImageView android:layout_width="20dp" android:layout_height="20dp" android:layout_gravity="center" android:src="@drawable/ic_back" app:tint="#FFFFFF"/>
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:orientation="vertical"
+                    app:layout_constraintStart_toEndOf="@id/btn_back"
+                    app:layout_constraintEnd_toStartOf="@id/btn_filter"
+                    app:layout_constraintTop_toTopOf="@id/btn_back"
+                    app:layout_constraintBottom_toBottomOf="@id/btn_back">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Revenue Analytics" android:textColor="#FFFFFF" android:textSize="22sp" android:textStyle="bold" android:letterSpacing="-0.02"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Financial performance tracking" android:textColor="#A8C4FF" android:textSize="13sp"/>
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_filter"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="44dp"
+                    android:text="Past 1 Week"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp"
+                    android:textAllCaps="false"
+                    app:icon="@drawable/ic_chevron_down"
+                    app:iconGravity="end"
+                    app:iconPadding="4dp"
+                    app:iconTint="#FFFFFF"
+                    android:backgroundTint="#20FFFFFF"
+                    app:cornerRadius="12dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/btn_back"
+                    app:layout_constraintBottom_toBottomOf="@id/btn_back"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- Quick Stats Boxes -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="6dp"
+                    android:background="@drawable/bg_glass_card"
+                    android:padding="12dp"
+                    android:orientation="vertical">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Overall Revenue" android:textColor="#A8C4FF" android:textSize="10sp" android:textStyle="bold" android:letterSpacing="0.05"/>
+                    <TextView android:id="@+id/tv_overall_revenue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="₹25,50,000" android:textColor="#FFFFFF" android:textSize="16sp" android:textStyle="bold" android:layout_marginTop="2dp"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:background="@drawable/bg_glass_card"
+                    android:padding="12dp"
+                    android:orientation="vertical">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Total Revenue" android:textColor="#A8C4FF" android:textSize="10sp" android:textStyle="bold" android:letterSpacing="0.05"/>
+                    <TextView android:id="@+id/tv_filtered_total" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="₹1,24,500" android:textColor="#FFFFFF" android:textSize="16sp" android:textStyle="bold" android:layout_marginTop="2dp"/>
+                </LinearLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#F8FAFC"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <!-- KPI Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:baselineAligned="false">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/bg_premium_card"
+                    android:elevation="2dp"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_notification_order" app:tint="#3B82F6" android:layout_marginBottom="12dp"/>
+                    <TextView android:id="@+id/tv_overall_orders" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="15,420" android:textColor="#1E293B" android:textSize="22sp" android:textStyle="bold"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Overall Orders" android:textColor="#64748B" android:textSize="12sp"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_premium_card"
+                    android:elevation="2dp"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_check_circle" app:tint="#10B981" android:layout_marginBottom="12dp"/>
+                    <TextView android:id="@+id/tv_filtered_orders" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="1,240" android:textColor="#1E293B" android:textSize="22sp" android:textStyle="bold"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Total Orders" android:textColor="#64748B" android:textSize="12sp"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Revenue Chart Card -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/bg_premium_card"
+                android:elevation="2dp"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="24dp">
+                    <TextView
+                        android:id="@+id/tv_chart_title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Revenue Trends"
+                        android:textColor="#1E293B"
+                        android:textSize="16sp"
+                        android:textStyle="bold"/>
+                    <TextView
+                        android:id="@+id/tv_current_filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Past 1 Week"
+                        android:textColor="#94A3B8"
+                        android:textSize="12sp"/>
+                </LinearLayout>
+
+                <!-- Chart Area -->
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="220dp"
+                    android:background="@drawable/bg_revenue_chart_gradient">
+
+                    <!-- Grid lines (Mock) -->
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E2E8F0" android:layout_marginTop="40dp"/>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E2E8F0" android:layout_marginTop="80dp"/>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E2E8F0" android:layout_marginTop="120dp"/>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E2E8F0" android:layout_marginTop="160dp"/>
+
+                    <!-- Y Labels -->
+                    <TextView android:id="@+id/y_label_top" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="₹40k" android:textSize="10sp" android:textColor="#94A3B8" android:layout_marginStart="8dp" android:layout_marginTop="32dp"/>
+                    <TextView android:id="@+id/y_label_mid" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="₹20k" android:textSize="10sp" android:textColor="#94A3B8" android:layout_marginStart="8dp" android:layout_marginTop="112dp"/>
+
+                    <!-- Scrollable Chart Content (Bars + Labels synced) -->
+                    <HorizontalScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="40dp"
+                        android:scrollbars="none">
+                        <LinearLayout
+                            android:id="@+id/chart_scroll_container"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal"
+                            android:gravity="bottom"
+                            android:paddingEnd="20dp"
+                            android:paddingBottom="4dp">
+                            <!-- Programmatically added Bar Units -->
+                        </LinearLayout>
+                    </HorizontalScrollView>
+                </RelativeLayout>
+
+            </LinearLayout>
+
+            <!-- Revenue by Service section -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Revenue Analytics"
-                android:textColor="#0369A1"
-                android:textSize="24sp"
-                android:textStyle="bold" />
-        </LinearLayout>
+                android:text="REVENUE BY SERVICE"
+                android:textColor="#94A3B8"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.1"
+                android:layout_marginTop="28dp"
+                android:layout_marginBottom="16dp"/>
 
-        <!-- Filter Row -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginTop="8dp">
-        
-        <TextView
-            android:id="@+id/tv_current_filter"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Past 1 Week"
-            android:textColor="#1E293B"
-            android:textSize="16sp"
-            android:textStyle="bold"/>
-            
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_filter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Filter"
-            app:icon="@android:drawable/ic_menu_sort_by_size"
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:textColor="#0369A1"
-            app:backgroundTint="#E0F2FE" />
-    </LinearLayout>
-
-        <!-- Total Revenue Summary -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:gravity="center"
-            android:text="Total Revenue"
-            android:textColor="#64748B"
-            android:textSize="14sp" />
-            
-        <TextView
-            android:id="@+id/tv_revenue_amount"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="₹ 1,24,500"
-            android:textColor="#0369A1"
-            android:textSize="40sp"
-            android:textStyle="bold"
-            android:layout_marginTop="4dp" />
-
-        <!-- Realistic Graph Section -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="240dp"
-            android:layout_marginTop="24dp"
-            app:cardBackgroundColor="@android:color/white"
-            app:cardCornerRadius="28dp"
-            app:cardElevation="12dp"
-            android:outlineAmbientShadowColor="#0EA5E9"
-            android:outlineSpotShadowColor="#0EA5E9">
-            
-            <RelativeLayout
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:padding="16dp">
-                
-                <!-- Y-Axis Labels -->
-                <LinearLayout
-                    android:id="@+id/layout_y_axis"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:layout_alignParentStart="true"
-                    android:layout_above="@+id/layout_x_axis"
-                    android:layout_marginBottom="8dp"
-                    android:layout_marginEnd="8dp">
-                    
-                    <TextView android:id="@+id/y_label_top" android:layout_width="wrap_content" android:layout_height="0dp" android:layout_weight="1" android:text="₹100k" android:textSize="10sp" android:textColor="#94A3B8"/>
-                    <TextView android:id="@+id/y_label_mid" android:layout_width="wrap_content" android:layout_height="0dp" android:layout_weight="1" android:text="₹50k" android:textSize="10sp" android:textColor="#94A3B8" android:gravity="center_vertical"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textSize="10sp" android:textColor="#94A3B8"/>
-                </LinearLayout>
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_premium_card"
+                android:elevation="2dp"
+                android:orientation="vertical"
+                android:padding="20dp"
+                android:layout_marginBottom="20dp">
 
-                <!-- Grid Lines -->
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E2E8F0" android:layout_alignTop="@id/layout_y_axis" android:layout_toEndOf="@id/layout_y_axis"/>
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E2E8F0" android:layout_centerVertical="true" android:layout_toEndOf="@id/layout_y_axis"/>
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E2E8F0" android:layout_alignBottom="@id/layout_y_axis" android:layout_toEndOf="@id/layout_y_axis"/>
-
-                <!-- X-Axis Labels -->
+                <!-- Service 1: Wash & Fold -->
                 <LinearLayout
-                    android:id="@+id/layout_x_axis"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_alignParentBottom="true"
-                    android:layout_toEndOf="@id/layout_y_axis">
-                    
-                    <TextView android:id="@+id/x_label_1" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Mon" android:textSize="10sp" android:textColor="#94A3B8" android:gravity="center"/>
-                    <TextView android:id="@+id/x_label_2" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Tue" android:textSize="10sp" android:textColor="#94A3B8" android:gravity="center"/>
-                    <TextView android:id="@+id/x_label_3" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Wed" android:textSize="10sp" android:textColor="#94A3B8" android:gravity="center"/>
-                    <TextView android:id="@+id/x_label_4" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Thu" android:textSize="10sp" android:textColor="#94A3B8" android:gravity="center"/>
-                    <TextView android:id="@+id/x_label_5" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Fri" android:textSize="10sp" android:textColor="#94A3B8" android:gravity="center"/>
-                    <TextView android:id="@+id/x_label_6" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Sat" android:textSize="10sp" android:textColor="#94A3B8" android:gravity="center"/>
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+                    <ProgressBar
+                        android:id="@+id/progress_wash"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:progress="65"
+                        android:progressDrawable="@drawable/circular_progress_aqua"/>
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="16dp"
+                        android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Wash &amp; Fold" android:textColor="#1E293B" android:textSize="14sp" android:textStyle="bold"/>
+                        <TextView android:id="@+id/tv_service_1_pct" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="65% of total revenue" android:textColor="#64748B" android:textSize="12sp"/>
+                    </LinearLayout>
+                    <TextView android:id="@+id/tv_service_1_amount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="₹80,925" android:textColor="#1E293B" android:textSize="15sp" android:textStyle="bold"/>
                 </LinearLayout>
 
-                <!-- Graph Bars -->
+                <!-- Service 2: Dry Cleaning -->
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal"
-                    android:layout_above="@id/layout_x_axis"
-                    android:layout_toEndOf="@id/layout_y_axis"
-                    android:gravity="bottom"
-                    android:layout_marginBottom="8dp">
-                    
-                    <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="bottom|center_horizontal">
-                        <View android:id="@+id/bar_1" android:layout_width="16dp" android:layout_height="60dp" android:background="#7DD3FC" />
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+                    <ProgressBar
+                        android:id="@+id/progress_dry"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:progress="25"
+                        android:progressDrawable="@drawable/circular_progress_aqua"/>
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="16dp"
+                        android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Dry Cleaning" android:textColor="#1E293B" android:textSize="14sp" android:textStyle="bold"/>
+                        <TextView android:id="@+id/tv_service_2_pct" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="25% of total revenue" android:textColor="#64748B" android:textSize="12sp"/>
                     </LinearLayout>
-                    <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="bottom|center_horizontal">
-                        <View android:id="@+id/bar_2" android:layout_width="16dp" android:layout_height="100dp" android:background="#7DD3FC" />
-                    </LinearLayout>
-                    <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="bottom|center_horizontal">
-                        <View android:id="@+id/bar_3" android:layout_width="16dp" android:layout_height="80dp" android:background="#0EA5E9" />
-                    </LinearLayout>
-                    <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="bottom|center_horizontal">
-                        <View android:id="@+id/bar_4" android:layout_width="16dp" android:layout_height="140dp" android:background="#7DD3FC" />
-                    </LinearLayout>
-                    <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="bottom|center_horizontal">
-                        <View android:id="@+id/bar_5" android:layout_width="16dp" android:layout_height="180dp" android:background="#0284C7" />
-                    </LinearLayout>
-                    <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="bottom|center_horizontal">
-                        <View android:id="@+id/bar_6" android:layout_width="16dp" android:layout_height="120dp" android:background="#7DD3FC" />
-                    </LinearLayout>
-
+                    <TextView android:id="@+id/tv_service_2_amount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="₹31,125" android:textColor="#1E293B" android:textSize="15sp" android:textStyle="bold"/>
                 </LinearLayout>
-            </RelativeLayout>
-        </com.google.android.material.card.MaterialCardView>
 
-    </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+                <!-- Service 3: Ironing -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical">
+                    <ProgressBar
+                        android:id="@+id/progress_iron"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:progress="10"
+                        android:progressDrawable="@drawable/circular_progress_aqua"/>
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="16dp"
+                        android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Premium Ironing" android:textColor="#1E293B" android:textSize="14sp" android:textStyle="bold"/>
+                        <TextView android:id="@+id/tv_service_3_pct" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="10% of total revenue" android:textColor="#64748B" android:textSize="12sp"/>
+                    </LinearLayout>
+                    <TextView android:id="@+id/tv_service_3_amount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="₹12,450" android:textColor="#1E293B" android:textSize="15sp" android:textStyle="bold"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- Bottom Spacer -->
+            <View android:layout_width="match_parent" android:layout_height="40dp"/>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
