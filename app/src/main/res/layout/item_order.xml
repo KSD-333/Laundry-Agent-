@@ -112,6 +112,7 @@
                         android:ellipsize="end" />
                 </LinearLayout>
 
+
                 <!-- Status badge -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/status_badge_container"

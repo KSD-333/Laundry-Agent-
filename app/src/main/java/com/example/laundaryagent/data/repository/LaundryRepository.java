@@ -23,18 +23,18 @@ public class LaundryRepository {
 
     private LaundryRepository() {
         pickupOrders = new ArrayList<>(Arrays.asList(
-            new OrderItem("P1", "Rahul Sharma",   "Tower 4, Apt 1201",       "Amanora Park Town", "9876543210", "09:30 AM"),
-            new OrderItem("P2", "Anjali Deshmukh","Iris, Flat 302",           "Magarpatta City",   "9876543211", "10:15 AM"),
-            new OrderItem("P3", "Vikram Malhotra","Wing C, House 5",          "Blue Ridge Town",   "9876543212", "08:00 AM"),
-            new OrderItem("P4", "Sneha Kulkarni", "Aspire, Penthouse 1",      "Amanora Park Town", "9876543215", "02:00 PM"),
-            new OrderItem("P5", "Aditya Joshi",   "Seryne, Block B",          "Magarpatta City",   "9876543216", "03:45 PM")
+            new OrderItem("P1", "Rahul Sharma",   "Tower 4, Apt 1201",       "Amanora Park Town", "9876543210", "09:30 AM", ""),
+            new OrderItem("P2", "Anjali Deshmukh","Iris, Flat 302",           "Magarpatta City",   "9876543211", "10:15 AM", ""),
+            new OrderItem("P3", "Vikram Malhotra","Wing C, House 5",          "Blue Ridge Town",   "9876543212", "08:00 AM", ""),
+            new OrderItem("P4", "Sneha Kulkarni", "Aspire, Penthouse 1",      "Amanora Park Town", "9876543215", "02:00 PM", ""),
+            new OrderItem("P5", "Aditya Joshi",   "Seryne, Block B",          "Magarpatta City",   "9876543216", "03:45 PM", "")
         ));
 
         deliveryOrders = new ArrayList<>(Arrays.asList(
-            new OrderItem("D1", "Priya Singh",    "T8, Flat 504",             "Blue Ridge Town",   "9876543213", "11:00 AM"),
-            new OrderItem("D2", "Sandeep Patil",  "Heliconia, Apt 101",       "Magarpatta City",   "9876543214", "01:30 PM"),
-            new OrderItem("D3", "Megha Rao",      "Gateway Towers, Apt 22",   "Amanora Park Town", "9876543217", "04:00 PM"),
-            new OrderItem("D4", "Karan Mehra",    "Wing A, Floor 15",         "Blue Ridge Town",   "9876543218", "05:30 PM")
+            new OrderItem("D1", "Priya Singh",    "T8, Flat 504",             "Blue Ridge Town",   "9876543213", "11:00 AM", ""),
+            new OrderItem("D2", "Sandeep Patil",  "Heliconia, Apt 101",       "Magarpatta City",   "9876543214", "01:30 PM", ""),
+            new OrderItem("D3", "Megha Rao",      "Gateway Towers, Apt 22",   "Amanora Park Town", "9876543217", "04:00 PM", ""),
+            new OrderItem("D4", "Karan Mehra",    "Wing A, Floor 15",         "Blue Ridge Town",   "9876543218", "05:30 PM", "")
         ));
 
         societies = Arrays.asList("All Societies", "Amanora Park Town", "Magarpatta City", "Blue Ridge Town");

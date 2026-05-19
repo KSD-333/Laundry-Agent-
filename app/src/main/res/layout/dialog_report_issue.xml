@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_dialog_card"
+    android:padding="28dp">
+
+    <!-- Icon -->
+    <FrameLayout
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="20dp">
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_dialog_icon_bg"
+            android:backgroundTint="#FFF1F2"/>
+        <ImageView
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_warning"
+            app:tint="#F43F5E"/>
+    </FrameLayout>
+
+    <!-- Title -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="Report Order Issue"
+        android:textColor="#0F172A"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp"/>
+
+    <!-- Message -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center"
+        android:text="Select the issue you've encountered with this order."
+        android:textColor="#64748B"
+        android:textSize="14sp"
+        android:layout_marginBottom="24dp"/>
+
+    <!-- Issue Options -->
+    <RadioGroup
+        android:id="@+id/issue_radio_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="28dp"
+        android:orientation="vertical">
+
+        <RadioButton
+            android:id="@+id/radio_customer_not_available"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:text="Customer not available"
+            android:textColor="#334155"
+            android:textSize="15sp"
+            android:buttonTint="#4361EE"
+            android:background="@drawable/bg_menu_row"
+            android:layout_marginBottom="8dp"/>
+
+        <RadioButton
+            android:id="@+id/radio_customer_not_reachable"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:text="Customer not reachable"
+            android:textColor="#334155"
+            android:textSize="15sp"
+            android:buttonTint="#4361EE"
+            android:background="@drawable/bg_menu_row"
+            android:layout_marginBottom="8dp"/>
+
+        <RadioButton
+            android:id="@+id/radio_address_not_found"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:text="Address not found"
+            android:textColor="#334155"
+            android:textSize="15sp"
+            android:buttonTint="#4361EE"
+            android:background="@drawable/bg_menu_row"
+            android:layout_marginBottom="8dp"/>
+
+        <RadioButton
+            android:id="@+id/radio_incorrect_details"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:text="Incorrect order details"
+            android:textColor="#334155"
+            android:textSize="15sp"
+            android:buttonTint="#4361EE"
+            android:background="@drawable/bg_menu_row"
+            android:layout_marginBottom="8dp"/>
+
+        <RadioButton
+            android:id="@+id/radio_other_person_present"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:text="Other person present"
+            android:textColor="#334155"
+            android:textSize="15sp"
+            android:buttonTint="#4361EE"
+            android:background="@drawable/bg_menu_row"
+            android:layout_marginBottom="8dp"/>
+
+        <RadioButton
+            android:id="@+id/radio_other_issue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:text="Other issue"
+            android:textColor="#334155"
+            android:textSize="15sp"
+            android:buttonTint="#4361EE"
+            android:background="@drawable/bg_menu_row"/>
+    </RadioGroup>
+
+    <!-- Action Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Reschedule button -->
+        <LinearLayout
+            android:id="@+id/btn_reschedule"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_complete_btn"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:clickable="false"
+            android:alpha="0.5">
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@drawable/ic_calendar"
+                app:tint="#FFFFFF"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="Reschedule Order"
+                android:textColor="#FFFFFF"
+                android:textSize="15sp"
+                android:textStyle="bold"/>
+        </LinearLayout>
+
+        <!-- Cancel button -->
+        <LinearLayout
+            android:id="@+id/btn_cancel_order"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:background="@drawable/bg_logout_btn"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:clickable="false"
+            android:alpha="0.5">
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@drawable/ic_warning"
+                app:tint="#F43F5E"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="Cancel Order"
+                android:textColor="#F43F5E"
+                android:textSize="15sp"
+                android:textStyle="bold"/>
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

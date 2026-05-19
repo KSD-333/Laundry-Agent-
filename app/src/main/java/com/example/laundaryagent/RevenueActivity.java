@@ -15,12 +15,16 @@ import android.view.ViewGroup;
 import android.os.Handler;
 import android.os.Looper;
 
+import com.example.laundaryagent.data.repository.FirebaseRepository;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.firebase.firestore.ListenerRegistration;
 
 import androidx.core.util.Pair;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class RevenueActivity extends AppCompatActivity {
@@ -35,8 +39,7 @@ public class RevenueActivity extends AppCompatActivity {
     private LinearLayout chartScrollContainer;
     
     private MaterialButton btnFilter;
-    private final String OVERALL_REV_VAL = "₹25,50,000";
-    private final String OVERALL_ORD_VAL = "15,420";
+    private final List<ListenerRegistration> listeners = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,12 +53,12 @@ public class RevenueActivity extends AppCompatActivity {
         // Revenue Quick Stats
         tvOverallRevenue = findViewById(R.id.tv_overall_revenue);
         tvFilteredTotal = findViewById(R.id.tv_filtered_total);
-        tvOverallRevenue.setText(OVERALL_REV_VAL);
+        tvOverallRevenue.setText("Loading...");
         
         // Orders Quick Stats
         tvOverallOrders = findViewById(R.id.tv_overall_orders);
         tvFilteredOrders = findViewById(R.id.tv_filtered_orders);
-        tvOverallOrders.setText(OVERALL_ORD_VAL);
+        tvOverallOrders.setText("...");
         
         // Chart Containers
         yLabelTop = findViewById(R.id.y_label_top);
@@ -72,6 +75,17 @@ public class RevenueActivity extends AppCompatActivity {
         progressWash = findViewById(R.id.progress_wash);
         progressDry = findViewById(R.id.progress_dry);
         progressIron = findViewById(R.id.progress_iron);
+
+        // Live: Overall Orders (lifetime)
+        FirebaseRepository fb = FirebaseRepository.getInstance();
+        listeners.add(fb.listenTotalOrders(count -> runOnUiThread(() ->
+            tvOverallOrders.setText(String.valueOf(count)))));
+
+        // Live: Overall Revenue (sum of all completed order amounts)
+        fb.getTotalRevenue(
+            err -> runOnUiThread(() -> tvOverallRevenue.setText("₹ --")),
+            total -> runOnUiThread(() ->
+                tvOverallRevenue.setText("₹" + String.format("%,d", total))));
 
         setupClickListeners();
         
@@ -287,5 +301,11 @@ public class RevenueActivity extends AppCompatActivity {
         });
 
         dateRangePicker.show(getSupportFragmentManager(), "DATE_PICKER");
+    }
+
+    @Override
+    protected void onDestroy() {
+        for (com.google.firebase.firestore.ListenerRegistration reg : listeners) reg.remove();
+        super.onDestroy();
     }
 }

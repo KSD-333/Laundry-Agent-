@@ -42,17 +42,6 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
     @Override
     public void onBindViewHolder(@NonNull OrderViewHolder holder, int position) {
         holder.bind(orders.get(position), listener);
-
-        // Staggered slide-up entrance
-        holder.itemView.setAlpha(0f);
-        holder.itemView.setTranslationY(30f);
-        holder.itemView.animate()
-                .alpha(1f)
-                .translationY(0f)
-                .setDuration(300)
-                .setStartDelay(position * 55L)
-                .setInterpolator(new DecelerateInterpolator(1.5f))
-                .start();
     }
 
     @Override
@@ -70,6 +59,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
             societyName          = itemView.findViewById(R.id.society_name_list);
             statusText           = itemView.findViewById(R.id.status_text);
             initialsText         = itemView.findViewById(R.id.initials_text);
+            // Removed order_id_list from constructor
             statusBadgeContainer = itemView.findViewById(R.id.status_badge_container);
             statusDotBg          = itemView.findViewById(R.id.status_dot_bg);
             accentBar            = itemView.findViewById(R.id.accent_bar);
@@ -80,6 +70,8 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
         void bind(OrderItem order, OnOrderClickListener listener) {
             customerName.setText(order.getCustomerName());
             societyName.setText(order.getSociety());
+            
+            // Removed order_id_list binding to declutter UI per user request
 
             boolean isDone = order.getStatus() == OrderStatus.COMPLETED;
 

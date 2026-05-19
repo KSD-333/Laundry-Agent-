@@ -39,12 +39,20 @@ public class MainActivity extends AppCompatActivity {
             return false;
         });
 
-        // Add badge to tasks
+        // Real-time badge from Firebase
         BadgeDrawable badge = bottomNav.getOrCreateBadge(R.id.nav_tasks);
-        badge.setVisible(true);
-        badge.setNumber(9);
         badge.setBackgroundColor(Color.RED);
         badge.setBadgeTextColor(Color.WHITE);
+
+        com.example.laundaryagent.data.repository.FirebaseRepository.getInstance()
+            .listenPendingOrders(count -> runOnUiThread(() -> {
+                if (count > 0) {
+                    badge.setVisible(true);
+                    badge.setNumber((int) count);
+                } else {
+                    badge.setVisible(false);
+                }
+            }));
     }
 
     private void loadFragment(Fragment fragment) {

@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,7 +23,10 @@ import com.example.laundaryagent.data.model.OrderItem;
 import com.example.laundaryagent.data.model.OrderServices;
 import com.example.laundaryagent.data.model.ServiceItem;
 import com.example.laundaryagent.data.repository.LaundryRepository;
+import com.example.laundaryagent.data.repository.FirebaseRepository;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+
+import java.util.Map;
 
 public class PickupDetailActivity extends AppCompatActivity {
 
@@ -111,6 +115,34 @@ public class PickupDetailActivity extends AppCompatActivity {
 
         // Order details
         findViewById(R.id.btn_order_details).setOnClickListener(v -> showOrderDetails());
+
+        // Dynamic fetch from Firebase if path is available
+        String orderPath = getIntent().getStringExtra("order_path");
+        if (orderPath != null && !orderPath.isEmpty()) {
+            FirebaseRepository.getInstance().getOrderByPath(orderPath,
+                err -> runOnUiThread(() ->
+                    Toast.makeText(this, "Error: " + err, Toast.LENGTH_SHORT).show()),
+                orders -> runOnUiThread(() -> {
+                    if (!orders.isEmpty()) {
+                        Map<String, Object> orderMap = orders.get(0);
+                        updateUIFromMap(orderMap);
+
+                        // Also fetch user data for complete info (name, address from user doc)
+                        String path = FirebaseRepository.str(orderMap, "__path");
+                        if (path.contains("/orders/")) {
+                            String userPath = path.substring(0, path.indexOf("/orders/"));
+                            FirebaseRepository.getInstance().getDocumentByPath(userPath,
+                                e -> Log.e("PickupDetail", "User fetch error: " + e),
+                                userMap -> runOnUiThread(() -> {
+                                    // Merge user data into UI (priority to user doc for name/address if order doc is empty)
+                                    updateUIWithUserData(userMap);
+                                })
+                            );
+                        }
+                    }
+                })
+            );
+        }
 
         if (isReadOnly) {
             // ── Completed / read-only mode ────────────────────────────────
@@ -248,21 +280,70 @@ public class PickupDetailActivity extends AppCompatActivity {
     }
 
     private void reportIssue() {
-        String[] issues = {
-            "Stain Present",
-            "Cloth Torn / Damaged",
-            "Color Fading",
-            "Missing Button",
-            "Old Damage (Pre-existing)",
-            "Wrong Item",
-            "Other Issue"
-        };
-        new AlertDialog.Builder(this)
-                .setTitle("Report Pickup Issue")
-                .setItems(issues, (dialog, which) ->
-                        Toast.makeText(this, "Issue reported: " + issues[which],
-                                Toast.LENGTH_SHORT).show())
-                .show();
+        android.app.Dialog dialog = new android.app.Dialog(this);
+        dialog.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
+        View v = getLayoutInflater().inflate(R.layout.dialog_report_issue, null);
+        dialog.setContentView(v);
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
+            dialog.getWindow().setLayout(
+                    (int) (getResources().getDisplayMetrics().widthPixels * 0.9f),
+                    android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+
+        android.widget.RadioGroup group = v.findViewById(R.id.issue_radio_group);
+        View btnReschedule = v.findViewById(R.id.btn_reschedule);
+        View btnCancel = v.findViewById(R.id.btn_cancel_order);
+
+        group.setOnCheckedChangeListener((g, checkedId) -> {
+            btnReschedule.setAlpha(1.0f);
+            btnReschedule.setClickable(true);
+            btnCancel.setAlpha(1.0f);
+            btnCancel.setClickable(true);
+        });
+
+        btnReschedule.setOnClickListener(view -> {
+            int selectedId = group.getCheckedRadioButtonId();
+            if (selectedId == -1 || currentOrder == null) return;
+
+            android.widget.RadioButton selected = v.findViewById(selectedId);
+            String reason = selected != null ? selected.getText().toString() : "Unknown Issue";
+
+            com.example.laundaryagent.data.repository.FirebaseRepository.getInstance()
+                    .rescheduleOrder(currentOrder.getFullPath(), reason, new com.example.laundaryagent.data.repository.FirebaseRepository.ActionCallback() {
+                        @Override public void onSuccess() {
+                            Toast.makeText(PickupDetailActivity.this, "Order rescheduled: " + reason, Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
+                            finish();
+                        }
+                        @Override public void onFailure(String error) {
+                            Toast.makeText(PickupDetailActivity.this, "Failed: " + error, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        });
+
+        btnCancel.setOnClickListener(view -> {
+            int selectedId = group.getCheckedRadioButtonId();
+            if (selectedId == -1 || currentOrder == null) return;
+
+            android.widget.RadioButton selected = v.findViewById(selectedId);
+            String reason = selected != null ? selected.getText().toString() : "Unknown Issue";
+
+            com.example.laundaryagent.data.repository.FirebaseRepository.getInstance()
+                    .markOrderIncomplete(currentOrder.getFullPath(), reason, new com.example.laundaryagent.data.repository.FirebaseRepository.ActionCallback() {
+                        @Override public void onSuccess() {
+                            Toast.makeText(PickupDetailActivity.this, "Order cancelled: " + reason, Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
+                            finish();
+                        }
+                        @Override public void onFailure(String error) {
+                            Toast.makeText(PickupDetailActivity.this, "Failed: " + error, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        });
+
+        dialog.show();
     }
 
     private void completePickup() {
@@ -305,8 +386,13 @@ public class PickupDetailActivity extends AppCompatActivity {
 
     private void showOrderDetails() {
         if (currentOrder == null) return;
-        OrderServices services = LaundryRepository.getInstance()
-                .getServicesForOrder(currentOrder.getId());
+        
+        OrderServices services = currentOrder.getServices();
+        if (services == null) {
+            // Fallback to repository if Firestore items not yet loaded
+            services = LaundryRepository.getInstance().getServicesForOrder(currentOrder.getId());
+        }
+
         if (services == null) {
             Toast.makeText(this, "No order details available", Toast.LENGTH_SHORT).show();
             return;
@@ -315,9 +401,19 @@ public class PickupDetailActivity extends AppCompatActivity {
         BottomSheetDialog sheet = new BottomSheetDialog(this);
         View v = LayoutInflater.from(this).inflate(R.layout.dialog_order_details, null);
         sheet.setContentView(v);
+        
+        TextView idView = v.findViewById(R.id.dialog_order_id);
+        String fullId = currentOrder.getId();
+        String shortId = fullId.length() > 8 ? fullId.substring(0, 8) + "..." : fullId;
+        idView.setText("#" + shortId + " · " + currentOrder.getCustomerName());
+        
+        idView.setOnClickListener(v1 -> {
+            android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+            android.content.ClipData clip = android.content.ClipData.newPlainText("Order ID", fullId);
+            clipboard.setPrimaryClip(clip);
+            Toast.makeText(this, "Order ID copied to clipboard", Toast.LENGTH_SHORT).show();
+        });
 
-        ((TextView) v.findViewById(R.id.dialog_order_id))
-                .setText("#" + currentOrder.getId() + " · " + currentOrder.getCustomerName());
         ((TextView) v.findViewById(R.id.dialog_total_items))
                 .setText(String.valueOf(services.totalItems()));
 
@@ -403,9 +499,115 @@ public class PickupDetailActivity extends AppCompatActivity {
 
     private void finishPickup() {
         if (currentOrder != null) {
-            LaundryRepository.getInstance().markPickupComplete(currentOrder.getId());
+            com.example.laundaryagent.data.repository.FirebaseRepository.getInstance()
+                    .markOrderPickupDone(currentOrder.getFullPath(), new com.example.laundaryagent.data.repository.FirebaseRepository.ActionCallback() {
+                        @Override public void onSuccess() {
+                            Toast.makeText(PickupDetailActivity.this, "Pickup completed successfully!", Toast.LENGTH_LONG).show();
+                            finish();
+                        }
+                        @Override public void onFailure(String error) {
+                            Toast.makeText(PickupDetailActivity.this, "Failed to complete pickup: " + error, Toast.LENGTH_SHORT).show();
+                        }
+                    });
         }
-        Toast.makeText(this, "Pickup completed successfully!", Toast.LENGTH_LONG).show();
-        finish();
+    }
+
+    private void updateUIFromMap(Map<String, Object> map) {
+        String id      = FirebaseRepository.str(map, "id");
+        String name    = FirebaseRepository.str(map, "customerName");
+        if (name.isEmpty()) name = FirebaseRepository.str(map, "name");
+        String society = FirebaseRepository.str(map, "society");
+        String address = FirebaseRepository.str(map, "address");
+        String phone   = FirebaseRepository.str(map, "customerPhone");
+        if (phone.isEmpty()) phone = FirebaseRepository.str(map, "phone"); // match screenshot
+        if (phone.isEmpty()) phone = FirebaseRepository.str(map, "userPhone");
+        String path    = FirebaseRepository.str(map, "__path");
+
+        currentOrder = new OrderItem(id, name, address, society, phone, "", path);
+        
+        // Parse items array from Firestore
+        Object itemsObj = map.get("items");
+        if (itemsObj instanceof java.util.List) {
+            currentOrder.setServices(FirebaseRepository.getInstance()
+                    .parseOrderServices((java.util.List<Map<String, Object>>) itemsObj));
+        }
+
+        ((TextView) findViewById(R.id.customer_name)).setText(name);
+        ((TextView) findViewById(R.id.society_name)).setText(society.isEmpty() ? "Residence" : society);
+        
+        TextView orderIdView = findViewById(R.id.order_id_text);
+        String fullId = id;
+        String shortId = fullId.length() > 8 ? fullId.substring(0, 8) + "..." : fullId;
+        orderIdView.setText("#" + shortId);
+        orderIdView.setOnClickListener(v -> {
+            android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+            android.content.ClipData clip = android.content.ClipData.newPlainText("Order ID", fullId);
+            clipboard.setPrimaryClip(clip);
+            Toast.makeText(this, "Order ID copied", Toast.LENGTH_SHORT).show();
+        });
+
+        if (!name.isEmpty()) {
+            ((TextView) findViewById(R.id.customer_initial))
+                    .setText(String.valueOf(name.charAt(0)).toUpperCase());
+        }
+
+        // Update address views
+        if (address != null && !address.isEmpty()) {
+            String[] parts = address.split(",");
+            String flat     = parts.length > 0 ? parts[0].trim() : address;
+            String building = parts.length > 1 ? parts[1].trim() : "";
+            String area     = parts.length > 2 ? parts[2].trim() : "Pune";
+
+            ((TextView) findViewById(R.id.addr_flat)).setText(flat);
+            ((TextView) findViewById(R.id.addr_building)).setText(building.isEmpty() ? society : building);
+            ((TextView) findViewById(R.id.addr_society)).setText(society.isEmpty() ? "Residential Area" : society);
+            ((TextView) findViewById(R.id.addr_area)).setText(area);
+            ((TextView) findViewById(R.id.addr_full)).setText(address);
+        }
+    }
+
+    private void updateUIWithUserData(Map<String, Object> userMap) {
+        if (userMap == null) return;
+
+        String name    = FirebaseRepository.str(userMap, "name");
+        String address = FirebaseRepository.str(userMap, "address");
+        String phone   = FirebaseRepository.str(userMap, "phone");
+        
+        // Society might be part of address or a separate field "society"
+        String society = FirebaseRepository.str(userMap, "society");
+        if (society.isEmpty()) {
+            if (!address.isEmpty()) {
+                String[] parts = address.split(",");
+                // Guessing society from the 3rd part or 1st part
+                society = parts.length > 2 ? parts[2].trim() : (parts.length > 0 ? parts[0].trim() : "Residence");
+            } else {
+                society = "Residence";
+            }
+        }
+
+        // Only update if not already set by orderMap (or if orderMap had placeholders)
+        if (!name.isEmpty()) {
+            ((TextView) findViewById(R.id.customer_name)).setText(name);
+            ((TextView) findViewById(R.id.customer_initial))
+                    .setText(String.valueOf(name.charAt(0)).toUpperCase());
+        }
+        
+        if (!society.isEmpty()) {
+            ((TextView) findViewById(R.id.society_name)).setText(society);
+        }
+
+        if (!address.isEmpty()) {
+            String[] parts = address.split(",");
+            String flat     = parts.length > 0 ? parts[0].trim() : address;
+            String building = parts.length > 1 ? parts[1].trim() : "";
+            String area     = parts.length > 2 ? parts[2].trim() : "Pune";
+
+            ((TextView) findViewById(R.id.addr_flat)).setText(flat);
+            ((TextView) findViewById(R.id.addr_building)).setText(building.isEmpty() ? society : building);
+            ((TextView) findViewById(R.id.addr_society)).setText(society);
+            ((TextView) findViewById(R.id.addr_area)).setText(area);
+            ((TextView) findViewById(R.id.addr_full)).setText(address);
+        }
     }
 }
+

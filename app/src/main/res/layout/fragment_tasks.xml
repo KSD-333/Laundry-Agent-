@@ -116,6 +116,7 @@
 
                         <!-- Red dot -->
                         <TextView
+                            android:id="@+id/notification_badge"
                             android:layout_width="18dp"
                             android:layout_height="18dp"
                             android:layout_gravity="top|end"
@@ -123,7 +124,7 @@
                             android:layout_marginEnd="1dp"
                             android:background="@drawable/bg_notification_dot"
                             android:gravity="center"
-                            android:text="9"
+                            android:text="0"
                             android:textColor="#FFFFFF"
                             android:textSize="9sp"
                             android:textStyle="bold" />
@@ -247,6 +248,38 @@
                 android:paddingStart="20dp"
                 android:paddingEnd="20dp"
                 android:paddingBottom="0dp">
+
+                <!-- Date Selector for Testing -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp"
+                    android:paddingStart="4dp">
+                    
+                    <TextView
+                        android:id="@+id/current_date_text"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Date: 16 May 2026"
+                        android:textColor="#64748B"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_change_date"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Change Date"
+                        android:textColor="#4361EE"
+                        android:textSize="12sp"
+                        app:icon="@drawable/ic_clock"
+                        app:iconSize="14dp"
+                        app:iconTint="#4361EE" />
+                </LinearLayout>
 
                 <!-- Society Selector -->
                 <androidx.constraintlayout.widget.ConstraintLayout

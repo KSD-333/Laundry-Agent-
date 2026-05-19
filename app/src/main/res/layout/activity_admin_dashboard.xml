@@ -87,8 +87,8 @@
                     android:orientation="vertical"
                     android:padding="20dp">
                     <ImageView android:layout_width="32dp" android:layout_height="32dp" android:src="@android:drawable/ic_menu_sort_by_size" app:tint="#0EA5E9" android:background="@drawable/bg_icon_blue_light" android:padding="6dp"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="$12.5k" android:textSize="24sp" android:textStyle="bold" android:textColor="#1E293B" android:layout_marginTop="12dp"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Total Revenue" android:textColor="#64748B" android:textSize="12sp"/>
+                    <TextView android:id="@+id/tv_stat_overall_orders" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="..." android:textSize="24sp" android:textStyle="bold" android:textColor="#1E293B" android:layout_marginTop="12dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Overall Orders" android:textColor="#64748B" android:textSize="12sp"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -114,8 +114,8 @@
                     android:orientation="vertical"
                     android:padding="20dp">
                     <ImageView android:layout_width="32dp" android:layout_height="32dp" android:src="@drawable/ic_user" app:tint="#0EA5E9" android:background="@drawable/bg_icon_blue_light" android:padding="6dp"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="1,248" android:textSize="24sp" android:textStyle="bold" android:textColor="#1E293B" android:layout_marginTop="12dp"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Total Users" android:textColor="#64748B" android:textSize="12sp"/>
+                    <TextView android:id="@+id/tv_stat_total_users" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="..." android:textSize="24sp" android:textStyle="bold" android:textColor="#1E293B" android:layout_marginTop="12dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Total Customers" android:textColor="#64748B" android:textSize="12sp"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -141,7 +141,7 @@
                     android:orientation="vertical"
                     android:padding="20dp">
                     <ImageView android:layout_width="32dp" android:layout_height="32dp" android:src="@android:drawable/ic_menu_recent_history" app:tint="#F59E0B" android:background="@drawable/bg_icon_orange_light" android:padding="6dp"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="18" android:textSize="24sp" android:textStyle="bold" android:textColor="#1E293B" android:layout_marginTop="12dp"/>
+                    <TextView android:id="@+id/tv_stat_pending_pickups" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="..." android:textSize="24sp" android:textStyle="bold" android:textColor="#1E293B" android:layout_marginTop="12dp"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Pending Pickups" android:textColor="#64748B" android:textSize="12sp"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -166,7 +166,7 @@
                     android:orientation="vertical"
                     android:padding="20dp">
                     <ImageView android:layout_width="32dp" android:layout_height="32dp" android:src="@android:drawable/checkbox_on_background" app:tint="#10B981" android:background="@drawable/bg_icon_green_light" android:padding="6dp"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="142" android:textSize="24sp" android:textStyle="bold" android:textColor="#1E293B" android:layout_marginTop="12dp"/>
+                    <TextView android:id="@+id/tv_stat_completed_deliveries" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="..." android:textSize="24sp" android:textStyle="bold" android:textColor="#1E293B" android:layout_marginTop="12dp"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Deliveries Completed" android:textColor="#64748B" android:textSize="12sp"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>

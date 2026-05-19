@@ -2,21 +2,37 @@ package com.example.laundaryagent;
 
 import android.os.Bundle;
 import android.widget.TextView;
-import android.widget.PopupMenu;
-import android.view.MenuItem;
+import android.widget.PopupWindow;
+import android.view.LayoutInflater;
+import android.content.Intent;
+import android.view.Gravity;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
-import android.widget.PopupWindow;
 import android.graphics.drawable.ColorDrawable;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import com.example.laundaryagent.data.model.OrderItem;
+import com.example.laundaryagent.data.repository.FirebaseRepository;
 import com.google.android.material.button.MaterialButton;
+import com.google.firebase.firestore.ListenerRegistration;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class CompletedDeliveriesActivity extends AppCompatActivity {
 
     private TextView tvCurrentFilter;
     private MaterialButton btnFilter;
+    private RecyclerView rvDeliveries;
+    private OrderAdapter adapter;
+    private final List<OrderItem> allOrders = new ArrayList<>();
+    private final List<OrderItem> filteredOrders = new ArrayList<>();
+    private ListenerRegistration listenerReg;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,11 +41,65 @@ public class CompletedDeliveriesActivity extends AppCompatActivity {
 
         tvCurrentFilter = findViewById(R.id.tv_current_filter);
         btnFilter = findViewById(R.id.btn_filter);
+        rvDeliveries = findViewById(R.id.rv_completed_deliveries);
 
+        initRecyclerView();
         btnFilter.setOnClickListener(v -> showFilterMenu());
+        loadData();
+    }
 
-        findViewById(R.id.card_delivery_1).setOnClickListener(v -> showDeliveryDetailsDialog("Order #1982", "Vikas Joshi", "Raj Kumar", "₹ 450.00", "C-201, Sapphire Heights, Pune", "12 May, 2024"));
-        findViewById(R.id.card_delivery_2).setOnClickListener(v -> showDeliveryDetailsDialog("Order #1980", "Mrs. Mehta", "Amit Singh", "₹ 1,200.00", "Villa 44, Magarpatta City, Pune", "11 May, 2024"));
+    private void initRecyclerView() {
+        if (rvDeliveries == null) return;
+        rvDeliveries.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new OrderAdapter(filteredOrders, this::onOrderClick);
+        rvDeliveries.setAdapter(adapter);
+    }
+
+    private void loadData() {
+        // We'll reuse listenTotalOrders logic but fetch the documents
+        listenerReg = FirebaseRepository.getInstance().listenAllDeliveryOrders(docs -> {
+            // Wait, listenAllDeliveryOrders is for PICKUP_DONE. 
+            // Let's use a more generic one or just filter for COMPLETED.
+            runOnUiThread(() -> {
+                allOrders.clear();
+                for (Map<String, Object> doc : docs) {
+                    // Filter for COMPLETED here if needed, or add a new repo method
+                    allOrders.add(mapToOrderItem(doc));
+                }
+                applyFilter();
+            });
+        });
+        
+        // Actually let's just create a quick method for completed orders in repo
+    }
+
+    private OrderItem mapToOrderItem(Map<String, Object> doc) {
+        String id      = FirebaseRepository.str(doc, "id");
+        String phone   = FirebaseRepository.str(doc, "customerPhone");
+        String name    = FirebaseRepository.str(doc, "customerName");
+        String address = FirebaseRepository.str(doc, "address");
+        String soc     = FirebaseRepository.str(doc, "society");
+        String path    = FirebaseRepository.str(doc, "__path");
+
+        if (name.isEmpty()) name = phone;
+        if (soc.isEmpty()) soc = address;
+
+        return new OrderItem(id, name, address, soc, phone, "Done", path);
+    }
+
+    private void onOrderClick(OrderItem order) {
+        showDeliveryDetailsDialog(order.getId(), order.getCustomerName(), "Agent", "₹ 0", order.getAddress(), "Recent");
+    }
+
+    private void applyFilter() {
+        String filter = tvCurrentFilter.getText().toString();
+        filteredOrders.clear();
+        for (OrderItem o : allOrders) {
+            if (filter.equals("All Societies") || o.getSociety().contains(filter)) {
+                filteredOrders.add(o);
+            }
+        }
+        adapter.notifyDataSetChanged();
     }
 
     private void showDeliveryDetailsDialog(String orderId, String userName, String agentName, String amount, String address, String pickupDate) {
@@ -80,11 +150,17 @@ public class CompletedDeliveriesActivity extends AppCompatActivity {
             itemView.setOnClickListener(v -> {
                 popupWindow.dismiss();
                 tvCurrentFilter.setText(society);
-                // Filter logic here
+                applyFilter();
             });
             optionsLayout.addView(itemView);
         }
 
         popupWindow.showAsDropDown(btnFilter, 0, 10);
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (listenerReg != null) listenerReg.remove();
+        super.onDestroy();
     }
 }

@@ -53,91 +53,11 @@
             app:backgroundTint="#E0F2FE" />
     </LinearLayout>
 
-    <ScrollView
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_pending_pickups"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingHorizontal="20dp"
-        android:clipToPadding="false">
-        
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <!-- Order 1 -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/card_pickup_1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                android:layout_marginHorizontal="4dp"
-                app:cardBackgroundColor="@android:color/white"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="8dp"
-                android:outlineAmbientShadowColor="#F59E0B"
-                android:outlineSpotShadowColor="#F59E0B">
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-                    
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
-                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Order #2041" android:textColor="#0369A1" android:textStyle="bold" android:textSize="16sp"/>
-                        <com.google.android.material.card.MaterialCardView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            app:cardBackgroundColor="#FEF3C7"
-                            app:cardCornerRadius="8dp"
-                            app:cardElevation="0dp">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Scheduled: 10:00 AM" android:textColor="#92400E" android:textSize="12sp" android:textStyle="bold" android:paddingHorizontal="8dp" android:paddingVertical="4dp"/>
-                        </com.google.android.material.card.MaterialCardView>
-                    </LinearLayout>
-
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Mrs. Sharma" android:textColor="#1E293B" android:textSize="18sp" android:textStyle="bold" android:layout_marginTop="12dp"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="B-402, Amanora Park Town, Pune" android:textColor="#64748B" android:textSize="14sp" android:layout_marginTop="4dp"/>
-
-
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Order 2 -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/card_pickup_2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                android:layout_marginHorizontal="4dp"
-                app:cardBackgroundColor="@android:color/white"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="8dp"
-                android:outlineAmbientShadowColor="#F59E0B"
-                android:outlineSpotShadowColor="#F59E0B">
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-                    
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
-                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Order #2042" android:textColor="#0369A1" android:textStyle="bold" android:textSize="16sp"/>
-                        <com.google.android.material.card.MaterialCardView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            app:cardBackgroundColor="#FEF3C7"
-                            app:cardCornerRadius="8dp"
-                            app:cardElevation="0dp">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Scheduled: 11:30 AM" android:textColor="#92400E" android:textSize="12sp" android:textStyle="bold" android:paddingHorizontal="8dp" android:paddingVertical="4dp"/>
-                        </com.google.android.material.card.MaterialCardView>
-                    </LinearLayout>
-
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Rahul Patil" android:textColor="#1E293B" android:textSize="18sp" android:textStyle="bold" android:layout_marginTop="12dp"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="A-101, Magarpatta City, Pune" android:textColor="#64748B" android:textSize="14sp" android:layout_marginTop="4dp"/>
-
-
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-        </LinearLayout>
-    </ScrollView>
+        android:clipToPadding="false"
+        android:layout_marginTop="8dp"/>
 </LinearLayout>

@@ -2,6 +2,7 @@ package com.example.laundaryagent;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,18 +18,25 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.laundaryagent.data.model.OrderItem;
 import com.example.laundaryagent.data.model.OrderStatus;
-import com.example.laundaryagent.data.repository.LaundryRepository;
+import com.example.laundaryagent.data.repository.FirebaseRepository;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.firebase.firestore.ListenerRegistration;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ReportsFragment extends Fragment {
 
-    private LaundryRepository repository;
+    private FirebaseRepository repository;
     private ViewPager2 viewPager;
+    private ListenerRegistration reportListener;
+    
+    private TextView reportPickupCount, reportDeliveryCount, percentageText, summaryText;
+    private CircularProgressIndicator progress;
 
     @Nullable
     @Override
@@ -36,33 +44,14 @@ public class ReportsFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_reports, container, false);
 
-        repository = LaundryRepository.getInstance();
+        repository = FirebaseRepository.getInstance();
 
-        List<OrderItem> pickups   = repository.getPickupOrders();
-        List<OrderItem> deliveries = repository.getDeliveryOrders();
+        reportPickupCount   = view.findViewById(R.id.report_pickup_count);
+        reportDeliveryCount = view.findViewById(R.id.report_delivery_count);
+        progress            = view.findViewById(R.id.report_circular_progress);
+        percentageText      = view.findViewById(R.id.report_percentage_text);
+        summaryText         = view.findViewById(R.id.report_tasks_summary);
 
-        // Header counts
-        TextView reportPickupCount   = view.findViewById(R.id.report_pickup_count);
-        TextView reportDeliveryCount = view.findViewById(R.id.report_delivery_count);
-        reportPickupCount.setText(String.valueOf(pickups.size()));
-        reportDeliveryCount.setText(String.valueOf(deliveries.size()));
-
-        // Progress ring
-        int total = pickups.size() + deliveries.size();
-        int completed = 0;
-        for (OrderItem o : pickups)    if (o.getStatus() == OrderStatus.COMPLETED) completed++;
-        for (OrderItem o : deliveries) if (o.getStatus() == OrderStatus.COMPLETED) completed++;
-
-        CircularProgressIndicator progress = view.findViewById(R.id.report_circular_progress);
-        TextView percentageText = view.findViewById(R.id.report_percentage_text);
-        TextView summaryText    = view.findViewById(R.id.report_tasks_summary);
-
-        int percent = total > 0 ? (completed * 100) / total : 0;
-        progress.setProgress(percent);
-        percentageText.setText(percent + "%");
-        summaryText.setText(completed + " of " + total + " completed");
-
-        // ViewPager2 + TabLayout
         viewPager = view.findViewById(R.id.report_view_pager);
         viewPager.setAdapter(new ReportPagerAdapter(this));
 
@@ -71,27 +60,55 @@ public class ReportsFragment extends Fragment {
                 tab.setText(position == 0 ? "Pickup Tasks" : "Delivery Tasks")
         ).attach();
 
+        attachFirebaseListener();
+
         return view;
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (getView() == null) return;
-        // Refresh progress ring when returning from detail screen
-        List<OrderItem> pickups   = repository.getPickupOrders();
-        List<OrderItem> deliveries = repository.getDeliveryOrders();
-        int total = pickups.size() + deliveries.size();
+    private void attachFirebaseListener() {
+        reportListener = repository.listenAllOrdersForTasks(docs -> {
+            if (getActivity() == null) return;
+            getActivity().runOnUiThread(() -> updateHeaderStats(docs));
+        });
+    }
+
+    private void updateHeaderStats(List<Map<String, Object>> docs) {
+        int pickups = 0;
+        int deliveries = 0;
         int completed = 0;
-        for (OrderItem o : pickups)    if (o.getStatus() == OrderStatus.COMPLETED) completed++;
-        for (OrderItem o : deliveries) if (o.getStatus() == OrderStatus.COMPLETED) completed++;
+        
+        for (Map<String, Object> doc : docs) {
+            String status = FirebaseRepository.str(doc, "status").toLowerCase();
+            
+            // Pickup side
+            if (status.equals("pending") || status.equals("picking pending") || status.equals("pickup_done")) {
+                pickups++;
+            }
+            // Delivery side
+            if (status.equals("ready") || status.equals("out_for_delivery") || status.equals("delivered") || status.equals("completed")) {
+                deliveries++;
+            }
+            
+            if (status.equals("completed") || status.equals("delivered")) {
+                completed++;
+            }
+        }
+
+        if (reportPickupCount != null) reportPickupCount.setText(String.valueOf(pickups));
+        if (reportDeliveryCount != null) reportDeliveryCount.setText(String.valueOf(deliveries));
+
+        int total = docs.size();
         int percent = total > 0 ? (completed * 100) / total : 0;
-        CircularProgressIndicator progress = getView().findViewById(R.id.report_circular_progress);
-        TextView percentageText = getView().findViewById(R.id.report_percentage_text);
-        TextView summaryText    = getView().findViewById(R.id.report_tasks_summary);
+        
         if (progress != null) progress.setProgress(percent, true);
         if (percentageText != null) percentageText.setText(percent + "%");
         if (summaryText != null) summaryText.setText(completed + " of " + total + " completed");
+    }
+
+    @Override
+    public void onDestroyView() {
+        if (reportListener != null) reportListener.remove();
+        super.onDestroyView();
     }
 
     // ── Pager adapter ──────────────────────────────────────────────────────
@@ -112,10 +129,11 @@ public class ReportsFragment extends Fragment {
     public static class ReportPageFragment extends Fragment {
 
         private static final String ARG_TYPE = "type";
-
-        // Keep references so onResume can refresh them
         private RecyclerView rv;
         private boolean isPickup;
+        private ListenerRegistration pageListener;
+        private final List<OrderItem> shownOrders = new ArrayList<>();
+        private OrderAdapter adapter;
 
         public static ReportPageFragment newInstance(int type) {
             ReportPageFragment f = new ReportPageFragment();
@@ -134,7 +152,6 @@ public class ReportsFragment extends Fragment {
             int type = getArguments() != null ? getArguments().getInt(ARG_TYPE, 0) : 0;
             isPickup = (type == 0);
 
-            // Style the section header (only needs to happen once)
             TextView label  = view.findViewById(R.id.section_label);
             TextView badge  = view.findViewById(R.id.section_badge);
             View accentBar  = view.findViewById(R.id.section_accent_bar);
@@ -154,47 +171,117 @@ public class ReportsFragment extends Fragment {
 
             rv = view.findViewById(R.id.report_page_recycler);
             rv.setLayoutManager(new LinearLayoutManager(getContext()));
+            adapter = new OrderAdapter(shownOrders, this::onOrderClick);
+            rv.setAdapter(adapter);
 
-            loadOrders();
+            attachFirebaseListener();
             return view;
         }
 
-        @Override
-        public void onResume() {
-            super.onResume();
-            // Refresh list every time we return (e.g. after completing a task)
-            loadOrders();
+        private void attachFirebaseListener() {
+            FirebaseRepository fb = FirebaseRepository.getInstance();
+            pageListener = fb.listenAllOrdersForTasks(docs -> {
+                if (getActivity() == null) return;
+                getActivity().runOnUiThread(() -> {
+                    shownOrders.clear();
+                    for (Map<String, Object> doc : docs) {
+                        OrderItem item = mapToOrderItem(doc);
+                        
+                        // Resolve name if missing
+                        if (item.getCustomerName().equals(item.getPhone())) {
+                            FirebaseRepository.getInstance().fetchNameForPhone(item.getPhone(), name -> {
+                                if (!name.equals("Unknown") && getActivity() != null) {
+                                    getActivity().runOnUiThread(() -> {
+                                        for (int i = 0; i < shownOrders.size(); i++) {
+                                            if (shownOrders.get(i).getPhone().equals(item.getPhone())) {
+                                                shownOrders.set(i, shownOrders.get(i).copyWithName(name));
+                                            }
+                                        }
+                                        if (adapter != null) adapter.notifyDataSetChanged();
+                                    });
+                                }
+                            });
+                        }
+                        
+                        boolean isCompleted = (item.getStatus() == OrderStatus.COMPLETED);
+                        
+                        if (isPickup) {
+                            // Show all that were part of pickup process
+                            shownOrders.add(item);
+                        } else {
+                            // Show all that are part of delivery process
+                            if (item.getStatus() == OrderStatus.READY || item.getStatus() == OrderStatus.OUT_FOR_DELIVERY 
+                                    || item.getStatus() == OrderStatus.COMPLETED || item.getStatus() == OrderStatus.PICKUP_DONE) {
+                                shownOrders.add(item);
+                            }
+                        }
+                    }
+                    
+                    // Sort: Pending first
+                    java.util.Collections.sort(shownOrders, (a, b) -> {
+                        if (a.getStatus() == b.getStatus()) return 0;
+                        if (a.getStatus() == OrderStatus.PENDING || a.getStatus() == OrderStatus.READY) return -1;
+                        return 1;
+                    });
+                    
+                    if (adapter != null) adapter.notifyDataSetChanged();
+                    TextView badge = getView() != null ? getView().findViewById(R.id.section_badge) : null;
+                    if (badge != null) badge.setText(String.valueOf(shownOrders.size()));
+                });
+            });
         }
 
-        private void loadOrders() {
-            if (rv == null) return;
+        private void onOrderClick(OrderItem order) {
+            android.content.Intent intent;
+            if (isPickup) {
+                intent = new android.content.Intent(getActivity(), PickupDetailActivity.class);
+            } else {
+                intent = new android.content.Intent(getActivity(), DeliveryDetailActivity.class);
+            }
+            intent.putExtra("order_id", order.getId());
+            intent.putExtra("order_path", order.getFullPath());
+            intent.putExtra("read_only", order.getStatus() == OrderStatus.COMPLETED);
+            startActivity(intent);
+        }
 
-            LaundryRepository repo = LaundryRepository.getInstance();
-            // Use filtered (sorted: pending first, completed last) — same as Tasks screen
-            List<OrderItem> orders = isPickup
-                    ? repo.getFilteredPickups("All Societies")
-                    : repo.getFilteredDeliveries("All Societies");
+        private OrderItem mapToOrderItem(Map<String, Object> doc) {
+            String id      = FirebaseRepository.str(doc, "id");
+            String phone   = FirebaseRepository.str(doc, "customerPhone");
+            if (phone.isEmpty()) phone = FirebaseRepository.str(doc, "phone");
+            String name    = FirebaseRepository.str(doc, "customerName");
+            if (name.isEmpty()) name = FirebaseRepository.str(doc, "name");
+            String address = FirebaseRepository.str(doc, "address");
+            String soc     = FirebaseRepository.str(doc, "society");
+            String statusStr = FirebaseRepository.str(doc, "status").toLowerCase();
+            String path    = FirebaseRepository.str(doc, "__path");
+            String incompleteReason = FirebaseRepository.str(doc, "incompleteReason");
 
-            // Update badge count
-            View root = getView();
-            if (root != null) {
-                TextView badge = root.findViewById(R.id.section_badge);
-                if (badge != null) badge.setText(String.valueOf(orders.size()));
+            if (name.isEmpty()) name = phone.isEmpty() ? "Unknown Customer" : phone;
+            if (soc.isEmpty() || soc.equals("All Societies")) {
+                if (!address.isEmpty()) {
+                    String[] parts = address.split(",");
+                    soc = parts.length > 0 ? parts[0].trim() : "Residence";
+                } else soc = "Residence";
             }
 
-            rv.setAdapter(new OrderAdapter(orders, order -> {
-                android.content.Intent intent;
-                if (isPickup) {
-                    intent = new android.content.Intent(getActivity(), PickupDetailActivity.class);
-                } else {
-                    intent = new android.content.Intent(getActivity(), DeliveryDetailActivity.class);
-                }
-                intent.putExtra("order_id", order.getId());
-                // Pass read-only flag for completed orders
-                intent.putExtra("read_only",
-                        order.getStatus() == com.example.laundaryagent.data.model.OrderStatus.COMPLETED);
-                startActivity(intent);
-            }));
+            OrderStatus status;
+            if (statusStr.equals("pending") || statusStr.equals("picking pending")) status = OrderStatus.PENDING;
+            else if (statusStr.equals("pickup_done") || statusStr.equals("washing") || statusStr.equals("ironing")) 
+                status = OrderStatus.PICKUP_DONE;
+            else if (statusStr.equals("ready")) status = OrderStatus.READY;
+            else if (statusStr.equals("out_for_delivery")) status = OrderStatus.OUT_FOR_DELIVERY;
+            else if (statusStr.equals("delivered") || statusStr.equals("completed")) 
+                status = OrderStatus.COMPLETED;
+            else if (statusStr.equals("incomplete")) status = OrderStatus.INCOMPLETE;
+            else status = OrderStatus.PENDING;
+
+            return new OrderItem(id, name, address, soc, phone, "", path, status, incompleteReason);
+        }
+
+        @Override
+        public void onDestroyView() {
+            if (pageListener != null) pageListener.remove();
+            super.onDestroyView();
         }
     }
 }
