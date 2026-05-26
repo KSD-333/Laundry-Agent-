@@ -123,6 +123,20 @@ public class UsersActivity extends AppCompatActivity {
             tvUserCount.setText(allUsers.size() + " Users");
         }
 
+        if (tvCurrentFilter != null) {
+            if (currentSocietyFilter.equals("All Societies")) {
+                tvCurrentFilter.setText("All Societies (" + allUsers.size() + ")");
+            } else {
+                int count = 0;
+                for (User u : allUsers) {
+                    if (u.society != null && u.society.equalsIgnoreCase(currentSocietyFilter)) {
+                        count++;
+                    }
+                }
+                tvCurrentFilter.setText(currentSocietyFilter + " (" + count + ")");
+            }
+        }
+
         applyFilter();
     }
 
@@ -190,6 +204,14 @@ public class UsersActivity extends AppCompatActivity {
 
         android.widget.LinearLayout optionsLayout = popupView.findViewById(R.id.ll_dropdown_options);
 
+        populateFilterMenu(optionsLayout, popupWindow, false);
+
+        popupWindow.showAsDropDown(v, 0, 10);
+    }
+
+    private void populateFilterMenu(android.widget.LinearLayout optionsLayout, android.widget.PopupWindow popupWindow, boolean showAll) {
+        optionsLayout.removeAllViews();
+
         // Dynamically extract unique societies
         List<String> societies = new ArrayList<>();
         societies.add("All Societies");
@@ -199,9 +221,28 @@ public class UsersActivity extends AppCompatActivity {
             }
         }
 
-        for (String society : societies) {
+        // Calculate counts
+        java.util.Map<String, Integer> societyCounts = new java.util.HashMap<>();
+        for (User u : allUsers) {
+            if (u.society != null && !u.society.isEmpty()) {
+                societyCounts.put(u.society, societyCounts.getOrDefault(u.society, 0) + 1);
+            }
+        }
+
+        int limit = 4;
+        boolean hasMore = societies.size() > limit;
+        int itemsToShow = (hasMore && !showAll) ? limit : societies.size();
+
+        for (int i = 0; i < itemsToShow; i++) {
+            final String society = societies.get(i);
             View itemView = getLayoutInflater().inflate(R.layout.item_filter_option, null);
-            ((TextView) itemView.findViewById(R.id.tv_option_text)).setText(society);
+            
+            // Format text with user count
+            final String displayName = society.equals("All Societies")
+                ? "All Societies (" + allUsers.size() + ")"
+                : society + " (" + societyCounts.getOrDefault(society, 0) + ")";
+
+            ((TextView) itemView.findViewById(R.id.tv_option_text)).setText(displayName);
             ((android.widget.ImageView) itemView.findViewById(R.id.iv_option_icon)).setImageResource(R.drawable.ic_pin);
             
             if (currentSocietyFilter.equals(society)) {
@@ -213,13 +254,26 @@ public class UsersActivity extends AppCompatActivity {
             itemView.setOnClickListener(click -> {
                 popupWindow.dismiss();
                 currentSocietyFilter = society;
-                if (tvCurrentFilter != null) tvCurrentFilter.setText(society);
+                if (tvCurrentFilter != null) tvCurrentFilter.setText(displayName);
                 applyFilter();
             });
             optionsLayout.addView(itemView);
         }
 
-        popupWindow.showAsDropDown(v, 0, 10);
+        // Show More option if not expanded and there are more items
+        if (hasMore && !showAll) {
+            View moreView = getLayoutInflater().inflate(R.layout.item_filter_option, null);
+            ((TextView) moreView.findViewById(R.id.tv_option_text)).setText("Show More (" + (societies.size() - limit) + ")...");
+            ((android.widget.ImageView) moreView.findViewById(R.id.iv_option_icon)).setImageResource(R.drawable.ic_clock);
+            ((android.widget.ImageView) moreView.findViewById(R.id.iv_option_icon)).setColorFilter(0xFF64748B);
+            moreView.findViewById(R.id.iv_check).setVisibility(View.GONE);
+            
+            moreView.setOnClickListener(click -> {
+                // Re-populate showing all items
+                populateFilterMenu(optionsLayout, popupWindow, true);
+            });
+            optionsLayout.addView(moreView);
+        }
     }
 
     @Override

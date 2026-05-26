@@ -82,16 +82,8 @@ public class AdminDashboardActivity extends AppCompatActivity {
         findViewById(R.id.card_completed_deliveries).setOnClickListener(v ->
             startActivity(new Intent(this, CompletedDeliveriesActivity.class)));
 
-        if (findViewById(R.id.tv_view_all_history) != null)
-            findViewById(R.id.tv_view_all_history).setOnClickListener(v ->
-                startActivity(new Intent(this, OrderHistoryActivity.class)));
-
-        if (findViewById(R.id.card_history_shortcut) != null)
-            findViewById(R.id.card_history_shortcut).setOnClickListener(v ->
-                startActivity(new Intent(this, OrderHistoryActivity.class)));
-
-        if (findViewById(R.id.card_history_shortcut_2) != null)
-            findViewById(R.id.card_history_shortcut_2).setOnClickListener(v ->
+        if (findViewById(R.id.card_history_button) != null)
+            findViewById(R.id.card_history_button).setOnClickListener(v ->
                 startActivity(new Intent(this, OrderHistoryActivity.class)));
     }
 

@@ -22,6 +22,10 @@ public class OrderHistoryActivity extends AppCompatActivity {
     private List<OrderHistory> filteredHistory = new ArrayList<>();
     private HistoryAdapter adapter;
     private TextView filterAll, filterCompleted, filterPending;
+    private TextView tvFilterSocietyText, tvFilterMonthsText;
+    private String currentSocietyFilter = "All Societies";
+    private String currentMonthFilter = "All Months";
+    private String currentStatusFilter = "All";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +44,11 @@ public class OrderHistoryActivity extends AppCompatActivity {
         filterCompleted = findViewById(R.id.filter_completed);
         filterPending = findViewById(R.id.filter_pending);
 
-        findViewById(R.id.btn_filter_dropdown).setOnClickListener(this::showFilterMenu);
+        tvFilterSocietyText = findViewById(R.id.tv_filter_society_text);
+        tvFilterMonthsText = findViewById(R.id.tv_filter_months_text);
+
+        findViewById(R.id.btn_filter_society).setOnClickListener(this::showSocietyFilterMenu);
+        findViewById(R.id.btn_filter_months).setOnClickListener(this::showMonthsFilterMenu);
 
         RecyclerView rvHistory = findViewById(R.id.rv_history);
         rvHistory.setLayoutManager(new LinearLayoutManager(this));
@@ -54,7 +62,7 @@ public class OrderHistoryActivity extends AppCompatActivity {
         filterPending.setOnClickListener(v -> applyFilter("Pending"));
     }
 
-    private void showFilterMenu(View v) {
+    private void showSocietyFilterMenu(View v) {
         View popupView = getLayoutInflater().inflate(R.layout.layout_custom_dropdown, null);
         PopupWindow popupWindow = new PopupWindow(popupView, 
             ViewGroup.LayoutParams.WRAP_CONTENT, 
@@ -65,19 +73,73 @@ public class OrderHistoryActivity extends AppCompatActivity {
 
         LinearLayout optionsLayout = popupView.findViewById(R.id.ll_dropdown_options);
 
-        String[] ranges = {"Last Week", "Last Month", "Last 2 Months", "Last 3 Months"};
-        int[] icons = {R.drawable.ic_clock, R.drawable.ic_calendar, R.drawable.ic_calendar, R.drawable.ic_calendar};
+        // Dynamically extract unique societies from all history
+        List<String> societies = new ArrayList<>();
+        societies.add("All Societies");
+        for (OrderHistory order : allHistory) {
+            if (order.society != null && !order.society.isEmpty() && !societies.contains(order.society)) {
+                societies.add(order.society);
+            }
+        }
 
-        for (int i = 0; i < ranges.length; i++) {
-            final String range = ranges[i];
+        for (String society : societies) {
             View itemView = getLayoutInflater().inflate(R.layout.item_filter_option, null);
-            ((TextView) itemView.findViewById(R.id.tv_option_text)).setText(range);
-            ((ImageView) itemView.findViewById(R.id.iv_option_icon)).setImageResource(icons[i]);
+            ((TextView) itemView.findViewById(R.id.tv_option_text)).setText(society);
+            ((ImageView) itemView.findViewById(R.id.iv_option_icon)).setImageResource(R.drawable.ic_pin);
             
+            if (currentSocietyFilter.equals(society)) {
+                itemView.findViewById(R.id.iv_check).setVisibility(View.VISIBLE);
+                ((com.google.android.material.card.MaterialCardView) itemView.findViewById(R.id.card_option_icon)).setCardBackgroundColor(0xFFE0F2FE);
+                ((ImageView) itemView.findViewById(R.id.iv_option_icon)).setColorFilter(0xFF0EA5E9);
+            }
+
             itemView.setOnClickListener(click -> {
                 popupWindow.dismiss();
-                // Apply time-based filter here
-                // For now, we'll just show a visual selection if we had a state
+                currentSocietyFilter = society;
+                if (tvFilterSocietyText != null) {
+                    tvFilterSocietyText.setText(society);
+                }
+                applyFilter(null);
+            });
+            optionsLayout.addView(itemView);
+        }
+
+        popupWindow.showAsDropDown(v, 0, 10);
+    }
+
+    private void showMonthsFilterMenu(View v) {
+        View popupView = getLayoutInflater().inflate(R.layout.layout_custom_dropdown, null);
+        PopupWindow popupWindow = new PopupWindow(popupView, 
+            ViewGroup.LayoutParams.WRAP_CONTENT, 
+            ViewGroup.LayoutParams.WRAP_CONTENT, true);
+
+        popupWindow.setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        popupWindow.setElevation(20);
+
+        LinearLayout optionsLayout = popupView.findViewById(R.id.ll_dropdown_options);
+
+        String[] timeframes = {"All Months", "May", "April", "March"};
+        int[] icons = {R.drawable.ic_clock, R.drawable.ic_calendar, R.drawable.ic_calendar, R.drawable.ic_calendar};
+
+        for (int i = 0; i < timeframes.length; i++) {
+            final String month = timeframes[i];
+            View itemView = getLayoutInflater().inflate(R.layout.item_filter_option, null);
+            ((TextView) itemView.findViewById(R.id.tv_option_text)).setText(month);
+            ((ImageView) itemView.findViewById(R.id.iv_option_icon)).setImageResource(icons[i]);
+            
+            if (currentMonthFilter.equals(month)) {
+                itemView.findViewById(R.id.iv_check).setVisibility(View.VISIBLE);
+                ((com.google.android.material.card.MaterialCardView) itemView.findViewById(R.id.card_option_icon)).setCardBackgroundColor(0xFFE0F2FE);
+                ((ImageView) itemView.findViewById(R.id.iv_option_icon)).setColorFilter(0xFF0EA5E9);
+            }
+
+            itemView.setOnClickListener(click -> {
+                popupWindow.dismiss();
+                currentMonthFilter = month;
+                if (tvFilterMonthsText != null) {
+                    tvFilterMonthsText.setText(month);
+                }
+                applyFilter(null);
             });
             optionsLayout.addView(itemView);
         }
@@ -86,25 +148,37 @@ public class OrderHistoryActivity extends AppCompatActivity {
     }
 
     private void applyFilter(String status) {
+        if (status != null) {
+            currentStatusFilter = status;
+        }
+
         // Reset chip styles
         resetFilterStyles();
 
         // Highlight selected chip
-        if (status.equals("All")) {
+        if (currentStatusFilter.equals("All")) {
             filterAll.setBackgroundResource(R.drawable.bg_chip_selected);
             filterAll.setTextColor(getResources().getColor(android.R.color.white));
-        } else if (status.equals("Completed")) {
+        } else if (currentStatusFilter.equals("Completed")) {
             filterCompleted.setBackgroundResource(R.drawable.bg_chip_selected);
             filterCompleted.setTextColor(getResources().getColor(android.R.color.white));
-        } else if (status.equals("Pending")) {
+        } else if (currentStatusFilter.equals("Pending")) {
             filterPending.setBackgroundResource(R.drawable.bg_chip_selected);
             filterPending.setTextColor(getResources().getColor(android.R.color.white));
         }
 
-        // Filter data
+        // Filter data by status AND society AND month
         filteredHistory.clear();
         for (OrderHistory order : allHistory) {
-            if (status.equals("All") || order.status.equalsIgnoreCase(status)) {
+            boolean matchesStatus = currentStatusFilter.equals("All") || order.status.equalsIgnoreCase(currentStatusFilter);
+            
+            boolean matchesSociety = currentSocietyFilter.equals("All Societies") || 
+                (order.society != null && order.society.equalsIgnoreCase(currentSocietyFilter));
+            
+            boolean matchesMonth = currentMonthFilter.equals("All Months") || 
+                (order.month != null && order.month.equalsIgnoreCase(currentMonthFilter));
+
+            if (matchesStatus && matchesSociety && matchesMonth) {
                 filteredHistory.add(order);
             }
         }
@@ -122,13 +196,13 @@ public class OrderHistoryActivity extends AppCompatActivity {
     }
 
     private void loadMockData() {
-        allHistory.add(new OrderHistory("Rahul Sharma", "₹ 450.00", "12:30 PM, 13 May", "Completed"));
-        allHistory.add(new OrderHistory("Priya Patel", "₹ 320.00", "11:15 AM, 13 May", "Completed"));
-        allHistory.add(new OrderHistory("Amit Verma", "₹ 890.00", "09:45 AM, 13 May", "Pending"));
-        allHistory.add(new OrderHistory("Sneha Gupta", "₹ 210.00", "06:20 PM, 12 May", "Completed"));
-        allHistory.add(new OrderHistory("Vikram Singh", "₹ 550.00", "04:10 PM, 12 May", "Canceled"));
-        allHistory.add(new OrderHistory("Anjali Rao", "₹ 1,200.00", "02:30 PM, 12 May", "Completed"));
-        allHistory.add(new OrderHistory("Karan Mehra", "₹ 670.00", "10:00 AM, 12 May", "Pending"));
+        allHistory.add(new OrderHistory("Rahul Sharma", "₹ 450.00", "12:30 PM, 13 May", "Completed", "Amanora Park Town", "May"));
+        allHistory.add(new OrderHistory("Priya Patel", "₹ 320.00", "11:15 AM, 13 May", "Completed", "Blue Ridge Town", "May"));
+        allHistory.add(new OrderHistory("Amit Verma", "₹ 890.00", "09:45 AM, 13 May", "Pending", "Magarpatta City", "May"));
+        allHistory.add(new OrderHistory("Sneha Gupta", "₹ 210.00", "06:20 PM, 12 April", "Completed", "Amanora Park Town", "April"));
+        allHistory.add(new OrderHistory("Vikram Singh", "₹ 550.00", "04:10 PM, 12 April", "Canceled", "Blue Ridge Town", "April"));
+        allHistory.add(new OrderHistory("Anjali Rao", "₹ 1,200.00", "02:30 PM, 12 March", "Completed", "Magarpatta City", "March"));
+        allHistory.add(new OrderHistory("Karan Mehra", "₹ 670.00", "10:00 AM, 12 March", "Pending", "Amanora Park Town", "March"));
 
         filteredHistory.addAll(allHistory);
         adapter.notifyDataSetChanged();
@@ -139,12 +213,16 @@ public class OrderHistoryActivity extends AppCompatActivity {
         String amount;
         String time;
         String status;
+        String society;
+        String month;
 
-        OrderHistory(String userName, String amount, String time, String status) {
+        OrderHistory(String userName, String amount, String time, String status, String society, String month) {
             this.userName = userName;
             this.amount = amount;
             this.time = time;
             this.status = status;
+            this.society = society;
+            this.month = month;
         }
     }
 
@@ -168,6 +246,7 @@ public class OrderHistoryActivity extends AppCompatActivity {
             holder.tvAmount.setText(order.amount);
             holder.tvTime.setText(order.time);
             holder.tvStatus.setText(order.status);
+            holder.tvOrderId.setText("Order #" + (1024 + position) + " · " + order.society);
             
             if (order.status.equalsIgnoreCase("Completed")) {
                 holder.cardStatus.setCardBackgroundColor(0xFFD1FAE5);
@@ -180,10 +259,10 @@ public class OrderHistoryActivity extends AppCompatActivity {
                 holder.tvStatus.setTextColor(0xFF92400E);
             }
 
-            holder.itemView.setOnClickListener(v -> showOrderDetailsDialog(order));
+            holder.itemView.setOnClickListener(v -> showOrderDetailsDialog(order, position));
         }
 
-        private void showOrderDetailsDialog(OrderHistory order) {
+        private void showOrderDetailsDialog(OrderHistory order, int position) {
             View dialogView = LayoutInflater.from(OrderHistoryActivity.this).inflate(R.layout.dialog_admin_order_details, null);
             androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(OrderHistoryActivity.this, R.style.CustomDialogTheme)
                 .setView(dialogView)
@@ -197,7 +276,7 @@ public class OrderHistoryActivity extends AppCompatActivity {
             TextView tvStatus = dialogView.findViewById(R.id.tv_dialog_status);
             com.google.android.material.card.MaterialCardView cardStatus = dialogView.findViewById(R.id.card_dialog_status);
             
-            tvOrderId.setText("#ORD-7742 · " + order.userName);
+            tvOrderId.setText("#ORD-" + (7742 + position) + " · " + order.userName + " (" + order.society + ")");
             tvStatus.setText(order.status);
             ((TextView) dialogView.findViewById(R.id.tv_dialog_amount)).setText(order.amount);
             
@@ -222,12 +301,13 @@ public class OrderHistoryActivity extends AppCompatActivity {
         }
 
         class HistoryViewHolder extends RecyclerView.ViewHolder {
-            TextView tvUser, tvAmount, tvTime, tvStatus;
+            TextView tvUser, tvAmount, tvTime, tvStatus, tvOrderId;
             MaterialCardView cardStatus;
 
             HistoryViewHolder(View itemView) {
                 super(itemView);
                 tvUser = itemView.findViewById(R.id.tv_order_user);
+                tvOrderId = itemView.findViewById(R.id.tv_order_id);
                 tvAmount = itemView.findViewById(R.id.tv_order_amount);
                 tvTime = itemView.findViewById(R.id.tv_order_time);
                 tvStatus = itemView.findViewById(R.id.tv_order_status);
