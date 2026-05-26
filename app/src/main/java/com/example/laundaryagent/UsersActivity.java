@@ -21,9 +21,17 @@ public class UsersActivity extends AppCompatActivity {
 
     private final List<User> allUsers = new ArrayList<>();
     private final List<User> filteredUsers = new ArrayList<>();
+    private final List<java.util.Map<String, Object>> allUserDocs = new ArrayList<>();
+    private final List<java.util.Map<String, Object>> allOrderDocs = new ArrayList<>();
+
     private UserAdapter adapter;
     private TextView tvUserCount;
-    private ListenerRegistration listenerReg;
+    private TextView tvCurrentFilter;
+    private View btnFilter;
+    private ListenerRegistration userListenerReg;
+    private ListenerRegistration orderListenerReg;
+
+    private String currentSocietyFilter = "All Societies";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +39,13 @@ public class UsersActivity extends AppCompatActivity {
         setContentView(R.layout.activity_users);
 
         tvUserCount = findViewById(R.id.tv_user_count);
+        tvCurrentFilter = findViewById(R.id.tv_current_filter);
+        btnFilter = findViewById(R.id.btn_filter);
+
+        if (btnFilter != null) {
+            btnFilter.setOnClickListener(this::showFilterMenu);
+        }
+
         initViews();
         loadFromFirebase();
         setupSearch();
@@ -46,24 +61,85 @@ public class UsersActivity extends AppCompatActivity {
     }
 
     private void loadFromFirebase() {
-        // Uses collectionGroup("users") to match path: app_data/[doc]/users/{phone}
-        listenerReg = FirebaseRepository.getInstance().listenAllUsers(userDocs ->
+        FirebaseRepository fb = FirebaseRepository.getInstance();
+
+        // 1. Listen to all users
+        userListenerReg = fb.listenAllUsers(userDocs ->
             runOnUiThread(() -> {
-                allUsers.clear();
-                for (java.util.Map<String, Object> doc : userDocs) {
-                    String phone   = FirebaseRepository.str(doc, "id");   // doc ID = phone
-                    String name    = FirebaseRepository.str(doc, "name");
-                    if (name.isEmpty()) name = phone; // fallback to phone
-                    String email   = FirebaseRepository.str(doc, "email");
-                    String address = FirebaseRepository.str(doc, "address");
-                    allUsers.add(new User(name, phone, email, address));
+                allUserDocs.clear();
+                if (userDocs != null) {
+                    allUserDocs.addAll(userDocs);
                 }
-                if (tvUserCount != null)
-                    tvUserCount.setText(allUsers.size() + " Users");
-                EditText et = findViewById(R.id.et_search);
-                filter(et != null ? et.getText().toString() : "");
+                recalculateUsers();
             })
         );
+
+        // 2. Listen to all orders for task/active calculations
+        orderListenerReg = fb.listenAllOrdersForTasks(orderDocs ->
+            runOnUiThread(() -> {
+                allOrderDocs.clear();
+                if (orderDocs != null) {
+                    allOrderDocs.addAll(orderDocs);
+                }
+                recalculateUsers();
+            })
+        );
+    }
+
+    private void recalculateUsers() {
+        allUsers.clear();
+        long oneMonthAgoMs = System.currentTimeMillis() - (30L * 24 * 60 * 60 * 1000);
+
+        for (java.util.Map<String, Object> doc : allUserDocs) {
+            String phone   = FirebaseRepository.str(doc, "id");   // doc ID = phone
+            String name    = FirebaseRepository.str(doc, "name");
+            if (name.isEmpty()) name = phone; // fallback to phone
+            String email   = FirebaseRepository.str(doc, "email");
+            String address = FirebaseRepository.str(doc, "address");
+            String society = FirebaseRepository.str(doc, "society");
+            if (society.isEmpty()) {
+                // Try to extract from address
+                String[] parts = address.split(",");
+                society = parts.length > 2 ? parts[2].trim() : (parts.length > 0 ? parts[0].trim() : "");
+            }
+
+            // Check if active based on last one month purchases
+            boolean active = false;
+            for (java.util.Map<String, Object> order : allOrderDocs) {
+                String customerPhone = FirebaseRepository.str(order, "customerPhone");
+                if (customerPhone.equals(phone)) {
+                    long orderTime = getOrderTime(order);
+                    if (orderTime >= oneMonthAgoMs) {
+                        active = true;
+                        break;
+                    }
+                }
+            }
+
+            allUsers.add(new User(name, phone, email, address, society, active));
+        }
+
+        if (tvUserCount != null) {
+            tvUserCount.setText(allUsers.size() + " Users");
+        }
+
+        applyFilter();
+    }
+
+    private long getOrderTime(java.util.Map<String, Object> orderDoc) {
+        Object completedAt = orderDoc.get("completedAt");
+        if (completedAt instanceof com.google.firebase.Timestamp) {
+            return ((com.google.firebase.Timestamp) completedAt).toDate().getTime();
+        }
+        Object updatedAt = orderDoc.get("updatedAt");
+        if (updatedAt instanceof com.google.firebase.Timestamp) {
+            return ((com.google.firebase.Timestamp) updatedAt).toDate().getTime();
+        }
+        Object pickedAt = orderDoc.get("pickedAt");
+        if (pickedAt instanceof com.google.firebase.Timestamp) {
+            return ((com.google.firebase.Timestamp) pickedAt).toDate().getTime();
+        }
+        return System.currentTimeMillis();
     }
 
     private void setupSearch() {
@@ -72,41 +148,94 @@ public class UsersActivity extends AppCompatActivity {
         etSearch.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-                filter(s.toString());
+                applyFilter();
             }
             @Override public void afterTextChanged(Editable s) {}
         });
     }
 
+    private void applyFilter() {
+        EditText et = findViewById(R.id.et_search);
+        String query = et != null ? et.getText().toString() : "";
+        filter(query);
+    }
+
     private void filter(String query) {
         filteredUsers.clear();
-        if (query.isEmpty()) {
-            filteredUsers.addAll(allUsers);
-        } else {
-            String lq = query.toLowerCase();
-            for (User user : allUsers) {
-                if (user.name.toLowerCase().contains(lq) ||
-                    user.phone.toLowerCase().contains(lq) ||
-                    user.email.toLowerCase().contains(lq)) {
-                    filteredUsers.add(user);
-                }
+        String lq = query.toLowerCase();
+        for (User user : allUsers) {
+            boolean matchesSearch = query.isEmpty() ||
+                user.name.toLowerCase().contains(lq) ||
+                user.phone.toLowerCase().contains(lq) ||
+                user.email.toLowerCase().contains(lq);
+
+            boolean matchesSociety = currentSocietyFilter.equals("All Societies") ||
+                (user.society != null && user.society.equalsIgnoreCase(currentSocietyFilter));
+
+            if (matchesSearch && matchesSociety) {
+                filteredUsers.add(user);
             }
         }
         adapter.notifyDataSetChanged();
     }
 
+    private void showFilterMenu(View v) {
+        View popupView = getLayoutInflater().inflate(R.layout.layout_custom_dropdown, null);
+        android.widget.PopupWindow popupWindow = new android.widget.PopupWindow(popupView, 
+            ViewGroup.LayoutParams.WRAP_CONTENT, 
+            ViewGroup.LayoutParams.WRAP_CONTENT, true);
+
+        popupWindow.setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
+        popupWindow.setElevation(20);
+
+        android.widget.LinearLayout optionsLayout = popupView.findViewById(R.id.ll_dropdown_options);
+
+        // Dynamically extract unique societies
+        List<String> societies = new ArrayList<>();
+        societies.add("All Societies");
+        for (User u : allUsers) {
+            if (u.society != null && !u.society.isEmpty() && !societies.contains(u.society)) {
+                societies.add(u.society);
+            }
+        }
+
+        for (String society : societies) {
+            View itemView = getLayoutInflater().inflate(R.layout.item_filter_option, null);
+            ((TextView) itemView.findViewById(R.id.tv_option_text)).setText(society);
+            ((android.widget.ImageView) itemView.findViewById(R.id.iv_option_icon)).setImageResource(R.drawable.ic_pin);
+            
+            if (currentSocietyFilter.equals(society)) {
+                itemView.findViewById(R.id.iv_check).setVisibility(View.VISIBLE);
+                ((com.google.android.material.card.MaterialCardView) itemView.findViewById(R.id.card_option_icon)).setCardBackgroundColor(0xFFE0F2FE);
+                ((android.widget.ImageView) itemView.findViewById(R.id.iv_option_icon)).setColorFilter(0xFF0EA5E9);
+            }
+
+            itemView.setOnClickListener(click -> {
+                popupWindow.dismiss();
+                currentSocietyFilter = society;
+                if (tvCurrentFilter != null) tvCurrentFilter.setText(society);
+                applyFilter();
+            });
+            optionsLayout.addView(itemView);
+        }
+
+        popupWindow.showAsDropDown(v, 0, 10);
+    }
+
     @Override
     protected void onDestroy() {
-        if (listenerReg != null) listenerReg.remove();
+        if (userListenerReg != null) userListenerReg.remove();
+        if (orderListenerReg != null) orderListenerReg.remove();
         super.onDestroy();
     }
 
     // ── Model ──────────────────────────────────────────────────────────────
 
     private static class User {
-        String name, phone, email, address;
-        User(String n, String p, String e, String a) {
-            name = n; phone = p; email = e; address = a;
+        String name, phone, email, address, society;
+        boolean isActive;
+        User(String n, String p, String e, String a, String s, boolean active) {
+            name = n; phone = p; email = e; address = a; society = s; isActive = active;
         }
     }
 
@@ -114,7 +243,10 @@ public class UsersActivity extends AppCompatActivity {
 
     private class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
         private final List<User> users;
-        UserAdapter(List<User> users) { this.users = users; }
+
+        UserAdapter(List<User> users) {
+            this.users = users;
+        }
 
         @Override
         public UserViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -128,6 +260,18 @@ public class UsersActivity extends AppCompatActivity {
             User user = users.get(position);
             holder.tvName.setText(user.name);
             holder.tvPhone.setText(user.phone.isEmpty() ? "No phone" : user.phone);
+            holder.tvSociety.setText(user.society.isEmpty() ? "Residence" : user.society);
+
+            if (user.isActive) {
+                holder.cardStatus.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(0xFFD1FAE5));
+                holder.tvStatus.setText("Active");
+                holder.tvStatus.setTextColor(0xFF065F46);
+            } else {
+                holder.cardStatus.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(0xFFF1F5F9));
+                holder.tvStatus.setText("Inactive");
+                holder.tvStatus.setTextColor(0xFF475569);
+            }
+
             holder.itemView.setOnClickListener(v -> showUserDetailsDialog(user));
         }
 
@@ -137,7 +281,7 @@ public class UsersActivity extends AppCompatActivity {
             androidx.appcompat.app.AlertDialog dialog =
                     new androidx.appcompat.app.AlertDialog.Builder(
                             UsersActivity.this, R.style.CustomDialogTheme)
-                    .setView(dialogView).create();
+                            .setView(dialogView).create();
             if (dialog.getWindow() != null)
                 dialog.getWindow().setBackgroundDrawable(
                         new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
@@ -149,14 +293,22 @@ public class UsersActivity extends AppCompatActivity {
             dialog.show();
         }
 
-        @Override public int getItemCount() { return users.size(); }
+        @Override
+        public int getItemCount() {
+            return users.size();
+        }
 
         class UserViewHolder extends RecyclerView.ViewHolder {
-            TextView tvName, tvPhone;
+            TextView tvName, tvPhone, tvSociety, tvStatus;
+            com.google.android.material.card.MaterialCardView cardStatus;
+
             UserViewHolder(View itemView) {
                 super(itemView);
-                tvName  = itemView.findViewById(R.id.tv_user_name);
+                tvName = itemView.findViewById(R.id.tv_user_name);
                 tvPhone = itemView.findViewById(R.id.tv_user_phone);
+                tvSociety = itemView.findViewById(R.id.tv_user_society);
+                tvStatus = itemView.findViewById(R.id.tv_user_status);
+                cardStatus = itemView.findViewById(R.id.card_user_status);
             }
         }
     }

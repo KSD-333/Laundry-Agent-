@@ -87,8 +87,8 @@
                     android:orientation="vertical"
                     android:padding="20dp">
                     <ImageView android:layout_width="32dp" android:layout_height="32dp" android:src="@android:drawable/ic_menu_sort_by_size" app:tint="#0EA5E9" android:background="@drawable/bg_icon_blue_light" android:padding="6dp"/>
-                    <TextView android:id="@+id/tv_stat_overall_orders" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="..." android:textSize="24sp" android:textStyle="bold" android:textColor="#1E293B" android:layout_marginTop="12dp"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Overall Orders" android:textColor="#64748B" android:textSize="12sp"/>
+                    <TextView android:id="@+id/tv_stat_revenue_analytics" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="..." android:textSize="20sp" android:textStyle="bold" android:textColor="#1E293B" android:layout_marginTop="12dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Revenue Analytics" android:textColor="#64748B" android:textSize="12sp"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -247,6 +247,7 @@
 
         <!-- History Item 2 -->
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_history_shortcut_2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
@@ -254,7 +255,9 @@
             app:cardCornerRadius="20dp"
             app:cardElevation="8dp"
             android:outlineAmbientShadowColor="#F59E0B"
-            android:outlineSpotShadowColor="#F59E0B">
+            android:outlineSpotShadowColor="#F59E0B"
+            android:clickable="true"
+            android:focusable="true">
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -231,7 +231,7 @@ public class TasksFragment extends Fragment {
             rv.setPadding(48, 24, 48, 220);
             rv.setClipToPadding(false);
 
-            adapter = new OrderAdapter(shownOrders, this::onOrderClick);
+            adapter = new OrderAdapter(shownOrders, tabType == 1, this::onOrderClick);
             rv.setAdapter(adapter);
 
             viewModel = new ViewModelProvider(requireActivity()).get(TaskViewModel.class);
@@ -301,11 +301,18 @@ public class TasksFragment extends Fragment {
                 ((TasksFragment) getParentFragment()).updateHeaderCounts(done, pending);
             }
             
-            // Sort: Pending first, then by date/id
+            // Sort: Active/Pending first, Completed at the bottom
             java.util.Collections.sort(shownOrders, (a, b) -> {
-                if (a.getStatus() == b.getStatus()) return 0;
-                if (a.getStatus() == OrderStatus.PENDING || a.getStatus() == OrderStatus.READY) return -1;
-                return 1;
+                boolean isPickupTab = (tabType == 0);
+                boolean aDone = isPickupTab ? 
+                    (a.getStatus() != OrderStatus.PENDING && a.getStatus() != OrderStatus.PICKING_PENDING) : 
+                    (a.getStatus() == OrderStatus.COMPLETED || a.getStatus() == OrderStatus.DELIVERED);
+                boolean bDone = isPickupTab ? 
+                    (b.getStatus() != OrderStatus.PENDING && b.getStatus() != OrderStatus.PICKING_PENDING) : 
+                    (b.getStatus() == OrderStatus.COMPLETED || b.getStatus() == OrderStatus.DELIVERED);
+                if (aDone && !bDone) return 1;
+                if (!aDone && bDone) return -1;
+                return 0;
             });
 
             if (adapter != null) adapter.notifyDataSetChanged();

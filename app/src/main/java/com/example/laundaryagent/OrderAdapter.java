@@ -21,6 +21,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
 
     private final List<OrderItem> orders;
     private final OnOrderClickListener listener;
+    private boolean isDeliveryView = false;
 
     public interface OnOrderClickListener {
         void onOrderClick(OrderItem order);
@@ -28,6 +29,13 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
 
     public OrderAdapter(List<OrderItem> orders, OnOrderClickListener listener) {
         this.orders = orders;
+        this.listener = listener;
+        this.isDeliveryView = false;
+    }
+
+    public OrderAdapter(List<OrderItem> orders, boolean isDeliveryView, OnOrderClickListener listener) {
+        this.orders = orders;
+        this.isDeliveryView = isDeliveryView;
         this.listener = listener;
     }
 
@@ -41,7 +49,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
 
     @Override
     public void onBindViewHolder(@NonNull OrderViewHolder holder, int position) {
-        holder.bind(orders.get(position), listener);
+        holder.bind(orders.get(position), isDeliveryView, listener);
     }
 
     @Override
@@ -67,13 +75,15 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
             chevronIcon          = itemView.findViewById(R.id.chevron_icon);
         }
 
-        void bind(OrderItem order, OnOrderClickListener listener) {
+        void bind(OrderItem order, boolean isDeliveryView, OnOrderClickListener listener) {
             customerName.setText(order.getCustomerName());
             societyName.setText(order.getSociety());
             
             // Removed order_id_list binding to declutter UI per user request
 
-            boolean isDone = order.getStatus() == OrderStatus.COMPLETED;
+            boolean isDone = isDeliveryView ? 
+                (order.getStatus() == OrderStatus.COMPLETED || order.getStatus() == OrderStatus.DELIVERED) : 
+                (order.getStatus() != OrderStatus.PENDING && order.getStatus() != OrderStatus.PICKING_PENDING);
 
             if (isDone) {
                 // ── Completed: muted visual, but still navigable ──────────
@@ -83,7 +93,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
                 if (statusDotBg != null) statusDotBg.setBackgroundResource(R.drawable.bg_avatar_done);
                 initialsText.setTextColor(grey);
 
-                statusText.setText("Completed");
+                statusText.setText(isDeliveryView ? "Completed" : "Picked Up");
                 statusText.setTextColor(grey);
                 statusBadgeContainer.setCardBackgroundColor(withAlpha(grey, 0.12f));
 
@@ -139,8 +149,12 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
 
             // Initials
             if (order.getCustomerName() != null && !order.getCustomerName().isEmpty()) {
-                initialsText.setText(
-                        String.valueOf(order.getCustomerName().charAt(0)).toUpperCase());
+                String firstChar = String.valueOf(order.getCustomerName().charAt(0));
+                if (firstChar.matches("[0-9]")) {
+                    initialsText.setText("U");
+                } else {
+                    initialsText.setText(firstChar.toUpperCase());
+                }
             }
         }
 

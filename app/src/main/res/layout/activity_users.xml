@@ -81,16 +81,48 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
+    <!-- Filter Row -->
+    <LinearLayout
+        android:id="@+id/ll_filter_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/card_search">
+
+        <TextView
+            android:id="@+id/tv_current_filter"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="All Societies"
+            android:textColor="#1E293B"
+            android:textSize="16sp"
+            android:fontFamily="sans-serif-black"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Filter"
+            app:icon="@android:drawable/ic_menu_sort_by_size"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:textColor="#0369A1"
+            app:backgroundTint="#E0F2FE" />
+    </LinearLayout>
+
     <!-- Users List -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_users"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:clipToPadding="false"
         android:padding="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/card_search"
+        app:layout_constraintTop_toBottomOf="@id/ll_filter_row"
         tools:listitem="@layout/item_user" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -171,7 +171,7 @@ public class ReportsFragment extends Fragment {
 
             rv = view.findViewById(R.id.report_page_recycler);
             rv.setLayoutManager(new LinearLayoutManager(getContext()));
-            adapter = new OrderAdapter(shownOrders, this::onOrderClick);
+            adapter = new OrderAdapter(shownOrders, !isPickup, this::onOrderClick);
             rv.setAdapter(adapter);
 
             attachFirebaseListener();
@@ -217,11 +217,17 @@ public class ReportsFragment extends Fragment {
                         }
                     }
                     
-                    // Sort: Pending first
+                    // Sort: Active/Pending first, Completed at the bottom
                     java.util.Collections.sort(shownOrders, (a, b) -> {
-                        if (a.getStatus() == b.getStatus()) return 0;
-                        if (a.getStatus() == OrderStatus.PENDING || a.getStatus() == OrderStatus.READY) return -1;
-                        return 1;
+                        boolean aDone = isPickup ? 
+                            (a.getStatus() != OrderStatus.PENDING) : 
+                            (a.getStatus() == OrderStatus.COMPLETED);
+                        boolean bDone = isPickup ? 
+                            (b.getStatus() != OrderStatus.PENDING) : 
+                            (b.getStatus() == OrderStatus.COMPLETED);
+                        if (aDone && !bDone) return 1;
+                        if (!aDone && bDone) return -1;
+                        return 0;
                     });
                     
                     if (adapter != null) adapter.notifyDataSetChanged();
@@ -235,11 +241,13 @@ public class ReportsFragment extends Fragment {
             android.content.Intent intent;
             if (isPickup) {
                 intent = new android.content.Intent(getActivity(), PickupDetailActivity.class);
+                intent.putExtra("order_id", order.getId());
+                intent.putExtra("order_path", order.getFullPath());
             } else {
                 intent = new android.content.Intent(getActivity(), DeliveryDetailActivity.class);
+                intent.putExtra("order_id", order.getFullPath());
+                intent.putExtra("order_path", order.getFullPath());
             }
-            intent.putExtra("order_id", order.getId());
-            intent.putExtra("order_path", order.getFullPath());
             intent.putExtra("read_only", order.getStatus() == OrderStatus.COMPLETED);
             startActivity(intent);
         }

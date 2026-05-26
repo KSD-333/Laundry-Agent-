@@ -19,6 +19,8 @@ import com.example.laundaryagent.data.model.OrderItem;
 import com.example.laundaryagent.data.model.OrderStatus;
 import com.example.laundaryagent.data.repository.FirebaseRepository;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.tabs.TabLayout;
+import androidx.viewpager2.widget.ViewPager2;
 import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.ArrayList;
@@ -26,14 +28,16 @@ import java.util.List;
 import java.util.Map;
 
 public class PendingPickupsActivity extends AppCompatActivity {
-    private String package_name = "com.example.laundaryagent";
     
     private TextView tvCurrentFilter;
     private MaterialButton btnFilter;
-    private RecyclerView rvPickups;
-    private OrderAdapter adapter;
+    private TextView tvTotalPickupsCount, tvPendingPickupsCount;
+    private TabLayout tabLayout;
+    private ViewPager2 viewPager;
+
     private final List<OrderItem> allOrders = new ArrayList<>();
     private final List<OrderItem> filteredOrders = new ArrayList<>();
+    private final List<OrderItem> pendingFilteredOrders = new ArrayList<>();
     private ListenerRegistration listenerReg;
 
     @Override
@@ -43,41 +47,63 @@ public class PendingPickupsActivity extends AppCompatActivity {
 
         tvCurrentFilter = findViewById(R.id.tv_current_filter);
         btnFilter = findViewById(R.id.btn_filter);
-        rvPickups = findViewById(R.id.rv_pending_pickups);
+        tvTotalPickupsCount = findViewById(R.id.tv_total_pickups_count);
+        tvPendingPickupsCount = findViewById(R.id.tv_pending_pickups_count);
+        tabLayout = findViewById(R.id.tab_layout);
+        viewPager = findViewById(R.id.view_pager);
 
-        initRecyclerView();
+        if (findViewById(R.id.btn_back) != null) {
+            findViewById(R.id.btn_back).setOnClickListener(v -> finish());
+        }
+
         btnFilter.setOnClickListener(v -> showFilterMenu());
+        initViewPager();
         loadData();
     }
 
-    private void initRecyclerView() {
-        if (rvPickups == null) return;
-        rvPickups.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new OrderAdapter(filteredOrders, this::onOrderClick);
-        rvPickups.setAdapter(adapter);
+    private void initViewPager() {
+        viewPager.setAdapter(new PickupsPagerAdapter());
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                viewPager.setCurrentItem(tab.getPosition());
+            }
+            @Override public void onTabUnselected(TabLayout.Tab tab) {}
+            @Override public void onTabReselected(TabLayout.Tab tab) {}
+        });
+        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                TabLayout.Tab tab = tabLayout.getTabAt(position);
+                if (tab != null) tab.select();
+            }
+        });
     }
 
     private void loadData() {
-        listenerReg = FirebaseRepository.getInstance().listenAllPendingPickups(docs -> {
+        listenerReg = FirebaseRepository.getInstance().listenAllOrdersForTasks(docs -> {
             runOnUiThread(() -> {
                 allOrders.clear();
                 for (Map<String, Object> doc : docs) {
                     OrderItem item = mapToOrderItem(doc);
-                    allOrders.add(item);
-                    
-                    if (item.getCustomerName().equals(item.getPhone())) {
-                        FirebaseRepository.getInstance().fetchNameForPhone(item.getPhone(), name -> {
-                            if (!name.equals("Unknown")) {
-                                runOnUiThread(() -> {
-                                    for (int i = 0; i < allOrders.size(); i++) {
-                                        if (allOrders.get(i).getPhone().equals(item.getPhone())) {
-                                            allOrders.set(i, allOrders.get(i).copyWithName(name));
+                    String status = FirebaseRepository.str(doc, "status").toLowerCase();
+                    if (status.equals("pending") || status.equals("picking pending") || status.equals("pickup_done") || status.equals("pickup done") || status.equals("completed") || status.equals("delivered") || status.equals("washing") || status.equals("ironing")) {
+                        allOrders.add(item);
+                        
+                        if (item.getCustomerName().equals(item.getPhone())) {
+                            FirebaseRepository.getInstance().fetchNameForPhone(item.getPhone(), name -> {
+                                if (!name.equals("Unknown")) {
+                                    runOnUiThread(() -> {
+                                        for (int i = 0; i < allOrders.size(); i++) {
+                                            if (allOrders.get(i).getPhone().equals(item.getPhone())) {
+                                                allOrders.set(i, allOrders.get(i).copyWithName(name));
+                                            }
                                         }
-                                    }
-                                    applyFilter();
-                                });
-                            }
-                        });
+                                        applyFilter();
+                                    });
+                                }
+                            });
+                        }
                     }
                 }
                 applyFilter();
@@ -98,18 +124,21 @@ public class PendingPickupsActivity extends AppCompatActivity {
         String path    = FirebaseRepository.str(doc, "__path");
 
         if (name.isEmpty()) name = phone.isEmpty() ? "Unknown" : phone;
-        if (soc.isEmpty()) {
-            if (!address.isEmpty()) {
-                String[] parts = address.split(",");
-                soc = parts.length > 2 ? parts[2].trim() : (parts.length > 0 ? parts[0].trim() : "Residence");
-            } else {
-                soc = "Residence";
-            }
-        }
+        if (soc.isEmpty()) soc = address;
 
-        return new OrderItem(id, name, address, soc, phone, "Now", path, OrderStatus.PENDING, null);
+        String statusStr = FirebaseRepository.str(doc, "status").toLowerCase();
+        OrderStatus status;
+        if (statusStr.equals("pending") || statusStr.equals("picking pending")) status = OrderStatus.PENDING;
+        else if (statusStr.equals("pickup done") || statusStr.equals("washing") || statusStr.equals("ironing") || statusStr.equals("pickup_done")) status = OrderStatus.PICKUP_DONE;
+        else if (statusStr.equals("ready")) status = OrderStatus.READY;
+        else if (statusStr.equals("out for delivery") || statusStr.equals("out_for_delivery")) status = OrderStatus.OUT_FOR_DELIVERY;
+        else if (statusStr.equals("delivered") || statusStr.equals("completed")) status = OrderStatus.COMPLETED;
+        else if (statusStr.equals("incomplete")) status = OrderStatus.INCOMPLETE;
+        else status = OrderStatus.PENDING;
+
+        String reason = FirebaseRepository.str(doc, "incompleteReason");
+        return new OrderItem(id, name, address, soc, phone, "Now", path, status, reason);
     }
-
 
     private void onOrderClick(OrderItem order) {
         showPickupDetailsDialog(order.getId(), order.getCustomerName(), order.getAddress());
@@ -118,12 +147,35 @@ public class PendingPickupsActivity extends AppCompatActivity {
     private void applyFilter() {
         String filter = tvCurrentFilter.getText().toString();
         filteredOrders.clear();
+        pendingFilteredOrders.clear();
         for (OrderItem o : allOrders) {
             if (filter.equals("All Societies") || o.getSociety().contains(filter)) {
                 filteredOrders.add(o);
+                if (o.getStatus() == OrderStatus.PENDING || o.getStatus() == OrderStatus.PICKING_PENDING) {
+                    pendingFilteredOrders.add(o);
+                }
             }
         }
-        adapter.notifyDataSetChanged();
+
+        // Sort completed/done tasks to the bottom/last (anything not PENDING or PICKING_PENDING is done)
+        java.util.Collections.sort(filteredOrders, (a, b) -> {
+            boolean aDone = (a.getStatus() != OrderStatus.PENDING && a.getStatus() != OrderStatus.PICKING_PENDING);
+            boolean bDone = (b.getStatus() != OrderStatus.PENDING && b.getStatus() != OrderStatus.PICKING_PENDING);
+            if (aDone && !bDone) return 1;
+            if (!aDone && bDone) return -1;
+            return 0;
+        });
+        
+        if (tvTotalPickupsCount != null) {
+            tvTotalPickupsCount.setText(String.valueOf(filteredOrders.size()));
+        }
+        if (tvPendingPickupsCount != null) {
+            tvPendingPickupsCount.setText(String.valueOf(pendingFilteredOrders.size()));
+        }
+
+        if (viewPager != null && viewPager.getAdapter() != null) {
+            viewPager.getAdapter().notifyDataSetChanged();
+        }
     }
 
     private void showPickupDetailsDialog(String orderId, String userName, String address) {
@@ -179,6 +231,7 @@ public class PendingPickupsActivity extends AppCompatActivity {
             itemView.setOnClickListener(v -> {
                 popupWindow.dismiss();
                 tvCurrentFilter.setText(society);
+                btnFilter.setText(society);
                 applyFilter();
             });
             optionsLayout.addView(itemView);
@@ -191,5 +244,40 @@ public class PendingPickupsActivity extends AppCompatActivity {
     protected void onDestroy() {
         if (listenerReg != null) listenerReg.remove();
         super.onDestroy();
+    }
+
+    // ── Adapter ────────────────────────────────────────────────────────────
+
+    private class PickupsPagerAdapter extends RecyclerView.Adapter<PickupsPagerAdapter.PageViewHolder> {
+        @Override
+        public PageViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            RecyclerView rv = new RecyclerView(parent.getContext());
+            rv.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 
+                ViewGroup.LayoutParams.MATCH_PARENT));
+            rv.setLayoutManager(new LinearLayoutManager(parent.getContext()));
+            rv.setPadding(40, 16, 40, 16);
+            rv.setClipToPadding(false);
+            return new PageViewHolder(rv);
+        }
+
+        @Override
+        public void onBindViewHolder(PageViewHolder holder, int position) {
+            OrderAdapter pageAdapter = new OrderAdapter(position == 0 ? filteredOrders : pendingFilteredOrders, 
+                false,
+                order -> onOrderClick(order));
+            holder.recyclerView.setAdapter(pageAdapter);
+        }
+
+        @Override
+        public int getItemCount() { return 2; }
+
+        class PageViewHolder extends RecyclerView.ViewHolder {
+            RecyclerView recyclerView;
+            PageViewHolder(View itemView) {
+                super(itemView);
+                recyclerView = (RecyclerView) itemView;
+            }
+        }
     }
 }

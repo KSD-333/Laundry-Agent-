@@ -293,6 +293,7 @@ public class PickupDetailActivity extends AppCompatActivity {
         }
 
         android.widget.RadioGroup group = v.findViewById(R.id.issue_radio_group);
+        android.widget.EditText etCustomIssue = v.findViewById(R.id.et_custom_issue);
         View btnReschedule = v.findViewById(R.id.btn_reschedule);
         View btnCancel = v.findViewById(R.id.btn_cancel_order);
 
@@ -301,14 +302,30 @@ public class PickupDetailActivity extends AppCompatActivity {
             btnReschedule.setClickable(true);
             btnCancel.setAlpha(1.0f);
             btnCancel.setClickable(true);
+            
+            if (checkedId == R.id.radio_other_issue) {
+                etCustomIssue.setVisibility(View.VISIBLE);
+                etCustomIssue.requestFocus();
+            } else {
+                etCustomIssue.setVisibility(View.GONE);
+            }
         });
 
         btnReschedule.setOnClickListener(view -> {
             int selectedId = group.getCheckedRadioButtonId();
             if (selectedId == -1 || currentOrder == null) return;
 
-            android.widget.RadioButton selected = v.findViewById(selectedId);
-            String reason = selected != null ? selected.getText().toString() : "Unknown Issue";
+            String reason;
+            if (selectedId == R.id.radio_other_issue) {
+                reason = etCustomIssue.getText().toString().trim();
+                if (reason.isEmpty()) {
+                    Toast.makeText(this, "Please describe the issue", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            } else {
+                android.widget.RadioButton selected = v.findViewById(selectedId);
+                reason = selected != null ? selected.getText().toString() : "Unknown Issue";
+            }
 
             com.example.laundaryagent.data.repository.FirebaseRepository.getInstance()
                     .rescheduleOrder(currentOrder.getFullPath(), reason, new com.example.laundaryagent.data.repository.FirebaseRepository.ActionCallback() {
@@ -327,8 +344,17 @@ public class PickupDetailActivity extends AppCompatActivity {
             int selectedId = group.getCheckedRadioButtonId();
             if (selectedId == -1 || currentOrder == null) return;
 
-            android.widget.RadioButton selected = v.findViewById(selectedId);
-            String reason = selected != null ? selected.getText().toString() : "Unknown Issue";
+            String reason;
+            if (selectedId == R.id.radio_other_issue) {
+                reason = etCustomIssue.getText().toString().trim();
+                if (reason.isEmpty()) {
+                    Toast.makeText(this, "Please describe the issue", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            } else {
+                android.widget.RadioButton selected = v.findViewById(selectedId);
+                reason = selected != null ? selected.getText().toString() : "Unknown Issue";
+            }
 
             com.example.laundaryagent.data.repository.FirebaseRepository.getInstance()
                     .markOrderIncomplete(currentOrder.getFullPath(), reason, new com.example.laundaryagent.data.repository.FirebaseRepository.ActionCallback() {

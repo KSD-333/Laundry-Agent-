@@ -524,6 +524,7 @@ public class DeliveryDetailActivity extends AppCompatActivity {
         }
 
         android.widget.RadioGroup group = v.findViewById(R.id.issue_radio_group);
+        android.widget.EditText etCustomIssue = v.findViewById(R.id.et_custom_issue);
         View btnReschedule = v.findViewById(R.id.btn_reschedule);
         View btnCancel = v.findViewById(R.id.btn_cancel_order);
 
@@ -532,12 +533,30 @@ public class DeliveryDetailActivity extends AppCompatActivity {
             btnReschedule.setClickable(true);
             btnCancel.setAlpha(1.0f);
             btnCancel.setClickable(true);
+            
+            if (checkedId == R.id.radio_other_issue) {
+                etCustomIssue.setVisibility(View.VISIBLE);
+                etCustomIssue.requestFocus();
+            } else {
+                etCustomIssue.setVisibility(View.GONE);
+            }
         });
 
         btnReschedule.setOnClickListener(view -> {
             int selectedId = group.getCheckedRadioButtonId();
-            String reason = selectedId == R.id.radio_customer_not_available ?
-                    "Customer not available" : "Other person present";
+            if (selectedId == -1) return;
+
+            String reason;
+            if (selectedId == R.id.radio_other_issue) {
+                reason = etCustomIssue.getText().toString().trim();
+                if (reason.isEmpty()) {
+                    Toast.makeText(this, "Please describe the issue", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            } else {
+                android.widget.RadioButton selected = v.findViewById(selectedId);
+                reason = selected != null ? selected.getText().toString() : "Unknown Issue";
+            }
 
             FirebaseRepository.getInstance().rescheduleOrder(orderId, reason, new FirebaseRepository.ActionCallback() {
                 @Override public void onSuccess() {
@@ -553,8 +572,19 @@ public class DeliveryDetailActivity extends AppCompatActivity {
 
         btnCancel.setOnClickListener(view -> {
             int selectedId = group.getCheckedRadioButtonId();
-            String reason = selectedId == R.id.radio_customer_not_available ?
-                    "Customer not available" : "Other person present";
+            if (selectedId == -1) return;
+
+            String reason;
+            if (selectedId == R.id.radio_other_issue) {
+                reason = etCustomIssue.getText().toString().trim();
+                if (reason.isEmpty()) {
+                    Toast.makeText(this, "Please describe the issue", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            } else {
+                android.widget.RadioButton selected = v.findViewById(selectedId);
+                reason = selected != null ? selected.getText().toString() : "Unknown Issue";
+            }
 
             FirebaseRepository.getInstance().markOrderIncomplete(orderId, reason, new FirebaseRepository.ActionCallback() {
                 @Override public void onSuccess() {

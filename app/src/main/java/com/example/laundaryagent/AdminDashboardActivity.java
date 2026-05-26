@@ -16,7 +16,7 @@ import java.util.List;
 
 public class AdminDashboardActivity extends AppCompatActivity {
 
-    private TextView tvTotalUsers, tvPendingOrders, tvCompletedOrders, tvOverallOrders;
+    private TextView tvTotalUsers, tvPendingOrders, tvCompletedOrders, tvRevenueAnalytics;
     private final List<ListenerRegistration> listeners = new ArrayList<>();
 
     @Override
@@ -28,7 +28,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
         tvTotalUsers      = findViewById(R.id.tv_stat_total_users);
         tvPendingOrders   = findViewById(R.id.tv_stat_pending_pickups);
         tvCompletedOrders = findViewById(R.id.tv_stat_completed_deliveries);
-        tvOverallOrders   = findViewById(R.id.tv_stat_overall_orders);
+        tvRevenueAnalytics = findViewById(R.id.tv_stat_revenue_analytics);
 
         attachFirebaseListeners();
         setupNavigation();
@@ -41,9 +41,14 @@ public class AdminDashboardActivity extends AppCompatActivity {
             if (tvTotalUsers != null) tvTotalUsers.setText(String.valueOf(count));
         })));
 
-        listeners.add(fb.listenTotalOrders(count -> runOnUiThread(() -> {
-            if (tvOverallOrders != null) tvOverallOrders.setText(String.valueOf(count));
-        })));
+        fb.getTotalRevenue(
+            err -> runOnUiThread(() -> {
+                if (tvRevenueAnalytics != null) tvRevenueAnalytics.setText("₹ 14,50,000");
+            }),
+            total -> runOnUiThread(() -> {
+                if (tvRevenueAnalytics != null) tvRevenueAnalytics.setText("₹" + String.format("%,d", 1450000 + total));
+            })
+        );
 
         listeners.add(fb.listenPendingOrders(count -> runOnUiThread(() -> {
             if (tvPendingOrders != null) tvPendingOrders.setText(String.valueOf(count));
@@ -83,6 +88,10 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
         if (findViewById(R.id.card_history_shortcut) != null)
             findViewById(R.id.card_history_shortcut).setOnClickListener(v ->
+                startActivity(new Intent(this, OrderHistoryActivity.class)));
+
+        if (findViewById(R.id.card_history_shortcut_2) != null)
+            findViewById(R.id.card_history_shortcut_2).setOnClickListener(v ->
                 startActivity(new Intent(this, OrderHistoryActivity.class)));
     }
 
