@@ -18,16 +18,32 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
     private TextView tvTotalUsers, tvPendingOrders, tvCompletedOrders, tvRevenueAnalytics;
     private final List<ListenerRegistration> listeners = new ArrayList<>();
+    private String franchiseId = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_dashboard);
 
+        // Read franchise info saved at login time
+        SharedPreferences prefs = getSharedPreferences("LaundryPrefs", MODE_PRIVATE);
+        franchiseId  = prefs.getString("franchise_id", "");
+        String fName = prefs.getString("franchise_name", "Franchise Admin");
+        String fLocation = prefs.getString("franchise_location", "");
+
+        // Show franchise name and location in header
+        TextView tvAdminName    = findViewById(R.id.tv_admin_name);
+        TextView tvAdminWelcome = findViewById(R.id.tv_admin_welcome);
+
+        if (tvAdminName != null)    tvAdminName.setText(fName);
+        if (tvAdminWelcome != null) {
+            tvAdminWelcome.setText(fLocation.isEmpty() ? "Welcome Back," : fLocation);
+        }
+
         // KPI TextViews in cards
-        tvTotalUsers      = findViewById(R.id.tv_stat_total_users);
-        tvPendingOrders   = findViewById(R.id.tv_stat_pending_pickups);
-        tvCompletedOrders = findViewById(R.id.tv_stat_completed_deliveries);
+        tvTotalUsers       = findViewById(R.id.tv_stat_total_users);
+        tvPendingOrders    = findViewById(R.id.tv_stat_pending_pickups);
+        tvCompletedOrders  = findViewById(R.id.tv_stat_completed_deliveries);
         tvRevenueAnalytics = findViewById(R.id.tv_stat_revenue_analytics);
 
         attachFirebaseListeners();
@@ -37,24 +53,29 @@ public class AdminDashboardActivity extends AppCompatActivity {
     private void attachFirebaseListeners() {
         FirebaseRepository fb = FirebaseRepository.getInstance();
 
-        listeners.add(fb.listenTotalUsers(count -> runOnUiThread(() -> {
+        // Total customers for THIS franchise only (filtered by franchiseId)
+        listeners.add(fb.listenFranchiseUsers(franchiseId, count -> runOnUiThread(() -> {
             if (tvTotalUsers != null) tvTotalUsers.setText(String.valueOf(count));
         })));
 
-        fb.getTotalRevenue(
+        // Revenue for THIS franchise only
+        fb.getFranchiseRevenue(franchiseId,
             err -> runOnUiThread(() -> {
-                if (tvRevenueAnalytics != null) tvRevenueAnalytics.setText("₹ 14,50,000");
+                if (tvRevenueAnalytics != null) tvRevenueAnalytics.setText("Rs.0");
             }),
             total -> runOnUiThread(() -> {
-                if (tvRevenueAnalytics != null) tvRevenueAnalytics.setText("₹" + String.format("%,d", 1450000 + total));
+                if (tvRevenueAnalytics != null)
+                    tvRevenueAnalytics.setText("Rs." + String.format("%,d", total));
             })
         );
 
-        listeners.add(fb.listenPendingOrders(count -> runOnUiThread(() -> {
+        // Pending pickups for THIS franchise only
+        listeners.add(fb.listenFranchisePendingOrders(franchiseId, count -> runOnUiThread(() -> {
             if (tvPendingOrders != null) tvPendingOrders.setText(String.valueOf(count));
         })));
 
-        listeners.add(fb.listenCompletedOrders(count -> runOnUiThread(() -> {
+        // Completed deliveries for THIS franchise only
+        listeners.add(fb.listenFranchiseCompletedOrders(franchiseId, count -> runOnUiThread(() -> {
             if (tvCompletedOrders != null) tvCompletedOrders.setText(String.valueOf(count));
         })));
     }
@@ -73,14 +94,26 @@ public class AdminDashboardActivity extends AppCompatActivity {
         findViewById(R.id.card_revenue).setOnClickListener(v ->
             startActivity(new Intent(this, RevenueActivity.class)));
 
-        findViewById(R.id.card_total_users).setOnClickListener(v ->
-            startActivity(new Intent(this, UsersActivity.class)));
+        // Pass franchiseId so UsersActivity can also filter
+        findViewById(R.id.card_total_users).setOnClickListener(v -> {
+            Intent i = new Intent(this, UsersActivity.class);
+            i.putExtra("franchise_id", franchiseId);
+            startActivity(i);
+        });
 
-        findViewById(R.id.card_pending_pickups).setOnClickListener(v ->
-            startActivity(new Intent(this, PendingPickupsActivity.class)));
+        // Pass franchiseId so PendingPickupsActivity can also filter
+        findViewById(R.id.card_pending_pickups).setOnClickListener(v -> {
+            Intent i = new Intent(this, PendingPickupsActivity.class);
+            i.putExtra("franchise_id", franchiseId);
+            startActivity(i);
+        });
 
-        findViewById(R.id.card_completed_deliveries).setOnClickListener(v ->
-            startActivity(new Intent(this, CompletedDeliveriesActivity.class)));
+        // Pass franchiseId so CompletedDeliveriesActivity can also filter
+        findViewById(R.id.card_completed_deliveries).setOnClickListener(v -> {
+            Intent i = new Intent(this, CompletedDeliveriesActivity.class);
+            i.putExtra("franchise_id", franchiseId);
+            startActivity(i);
+        });
 
         if (findViewById(R.id.card_history_button) != null)
             findViewById(R.id.card_history_button).setOnClickListener(v ->
@@ -89,7 +122,6 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        // Clean up all real-time listeners to prevent memory leaks
         for (ListenerRegistration reg : listeners) reg.remove();
         super.onDestroy();
     }

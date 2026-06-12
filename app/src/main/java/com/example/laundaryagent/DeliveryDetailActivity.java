@@ -51,7 +51,7 @@ public class DeliveryDetailActivity extends AppCompatActivity {
     private OrderItem currentOrder;
 
     // OTP inputs
-    private EditText[] otpBoxes = new EditText[4];
+    private EditText[] otpBoxes = new EditText[6];
     private RequestQueue requestQueue;
 
     @Override
@@ -148,6 +148,10 @@ public class DeliveryDetailActivity extends AppCompatActivity {
         String docId   = FirebaseRepository.str(data, "id");
         String path    = FirebaseRepository.str(data, "__path");
 
+        if (name.isEmpty()) {
+            name = phone.isEmpty() ? "Unknown Customer" : phone;
+        }
+
         currentOrder = new OrderItem(docId, name, address, society, phone, "", path);
         
         // Parse items array
@@ -170,9 +174,25 @@ public class DeliveryDetailActivity extends AppCompatActivity {
             Toast.makeText(this, "Order ID copied", Toast.LENGTH_SHORT).show();
         });
         
-        if (!name.isEmpty())
+        if (!name.isEmpty()) {
             ((TextView) findViewById(R.id.customer_initial))
                     .setText(String.valueOf(name.charAt(0)).toUpperCase());
+        }
+
+        // Try to fetch real name if it's currently a phone number or unknown
+        final String searchPhone = phone;
+        if (name.equals(searchPhone) || name.equals("Unknown Customer")) {
+            FirebaseRepository.getInstance().fetchNameForPhone(searchPhone, realName -> {
+                if (!realName.equals("Unknown") && !realName.equals(searchPhone)) {
+                    runOnUiThread(() -> {
+                        ((TextView) findViewById(R.id.customer_name)).setText(realName);
+                        ((TextView) findViewById(R.id.customer_initial))
+                                .setText(String.valueOf(realName.charAt(0)).toUpperCase());
+                        if (currentOrder != null) currentOrder = currentOrder.copyWithName(realName);
+                    });
+                }
+            });
+        }
 
         ((TextView) findViewById(R.id.addr_full)).setText(address);
         ((TextView) findViewById(R.id.addr_society)).setText(society.isEmpty() ? "Residential Area" : society);
@@ -200,6 +220,8 @@ public class DeliveryDetailActivity extends AppCompatActivity {
             otpBoxes[1] = findViewById(R.id.otp_2);
             otpBoxes[2] = findViewById(R.id.otp_3);
             otpBoxes[3] = findViewById(R.id.otp_4);
+            otpBoxes[4] = findViewById(R.id.otp_5);
+            otpBoxes[5] = findViewById(R.id.otp_6);
             wireOtpBoxes();
             findViewById(R.id.btn_send_otp).setOnClickListener(v -> sendDeliveryOtp());
             findViewById(R.id.btn_complete_delivery).setOnClickListener(v -> verifyAndComplete());
@@ -214,7 +236,7 @@ public class DeliveryDetailActivity extends AppCompatActivity {
     // ── OTP ───────────────────────────────────────────────────────────────
 
     private void wireOtpBoxes() {
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 6; i++) {
             final int idx = i;
             if (otpBoxes[i] == null) continue;
             otpBoxes[i].addTextChangedListener(new TextWatcher() {
@@ -222,7 +244,7 @@ public class DeliveryDetailActivity extends AppCompatActivity {
                 @Override public void afterTextChanged(Editable s) {}
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    if (s.length() == 1 && idx < 3 && otpBoxes[idx + 1] != null)
+                    if (s.length() == 1 && idx < 5 && otpBoxes[idx + 1] != null)
                         otpBoxes[idx + 1].requestFocus();
                     if (s.length() == 0 && idx > 0 && otpBoxes[idx - 1] != null)
                         otpBoxes[idx - 1].requestFocus();
@@ -245,7 +267,7 @@ public class DeliveryDetailActivity extends AppCompatActivity {
 
         // If Firebase order, persist the OTP there first
         if (isFirebaseOrder) {
-            FirebaseRepository.getInstance().markPickupDone(orderId, generatedOtp,
+            FirebaseRepository.getInstance().saveDeliveryOtp(orderId, generatedOtp,
                 new FirebaseRepository.ActionCallback() {
                     @Override public void onSuccess() {
                         runOnUiThread(() -> dispatchSmsOtp(generatedOtp));
@@ -265,8 +287,8 @@ public class DeliveryDetailActivity extends AppCompatActivity {
         otpSent = true;
         showOtpSection();
 
-        String message = "Your Freshfold delivery OTP is " + otp +
-                ". Please share this with the delivery agent to confirm receipt. - Expertskill Technology.";
+        String message = "Your Verification Code for login is " + otp +
+                ". - Expertskill Technology.";
         String url = "https://mobicomm.dove-sms.com//submitsms.jsp?"
                 + "user=" + SMS_USER
                 + "&key=" + SMS_AUTHKEY
@@ -313,8 +335,8 @@ public class DeliveryDetailActivity extends AppCompatActivity {
             if (box != null) entered.append(box.getText().toString().trim());
         }
 
-        if (entered.length() < 4) {
-            Toast.makeText(this, "Please enter the OTP", Toast.LENGTH_SHORT).show();
+        if (entered.length() < 6) {
+            Toast.makeText(this, "Please enter the 6-digit OTP", Toast.LENGTH_SHORT).show();
             return;
         }
 

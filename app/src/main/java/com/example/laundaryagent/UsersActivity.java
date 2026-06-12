@@ -30,6 +30,7 @@ public class UsersActivity extends AppCompatActivity {
     private View btnFilter;
     private ListenerRegistration userListenerReg;
     private ListenerRegistration orderListenerReg;
+    private String franchiseId = "";
 
     private String currentSocietyFilter = "All Societies";
 
@@ -37,6 +38,14 @@ public class UsersActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_users);
+
+        // Get franchiseId from intent (passed by AdminDashboardActivity)
+        if (getIntent().hasExtra("franchise_id")) {
+            franchiseId = getIntent().getStringExtra("franchise_id");
+        } else {
+            franchiseId = getSharedPreferences("LaundryPrefs", MODE_PRIVATE)
+                    .getString("franchise_id", "");
+        }
 
         tvUserCount = findViewById(R.id.tv_user_count);
         tvCurrentFilter = findViewById(R.id.tv_current_filter);
@@ -63,24 +72,31 @@ public class UsersActivity extends AppCompatActivity {
     private void loadFromFirebase() {
         FirebaseRepository fb = FirebaseRepository.getInstance();
 
-        // 1. Listen to all users
+        // 1. Listen to users (fetch all from root users path and filter client-side)
         userListenerReg = fb.listenAllUsers(userDocs ->
             runOnUiThread(() -> {
                 allUserDocs.clear();
                 if (userDocs != null) {
-                    allUserDocs.addAll(userDocs);
+                    if (franchiseId != null && !franchiseId.isEmpty()) {
+                        for (java.util.Map<String, Object> doc : userDocs) {
+                            String fId = FirebaseRepository.str(doc, "franchiseId").trim();
+                            if (franchiseId.trim().equals(fId)) {
+                                allUserDocs.add(doc);
+                            }
+                        }
+                    } else {
+                        allUserDocs.addAll(userDocs);
+                    }
                 }
                 recalculateUsers();
             })
         );
 
-        // 2. Listen to all orders for task/active calculations
-        orderListenerReg = fb.listenAllOrdersForTasks(orderDocs ->
+        // 2. Orders filtered by franchise
+        orderListenerReg = fb.listenFranchiseOrders(franchiseId, orderDocs ->
             runOnUiThread(() -> {
                 allOrderDocs.clear();
-                if (orderDocs != null) {
-                    allOrderDocs.addAll(orderDocs);
-                }
+                if (orderDocs != null) allOrderDocs.addAll(orderDocs);
                 recalculateUsers();
             })
         );

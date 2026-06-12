@@ -48,7 +48,8 @@ public class LoginActivity extends AppCompatActivity {
     private final List<String> BYPASS_NUMBERS = Arrays.asList(
             "9999999999","8888888888","7777777777","0000000000",
             "9898989898","1111111111","2222222222","3333333333",
-            "4444444444","5555555555","6666666666"
+            "4444444444","5555555555","6666666666", "8787878787",
+            "7878787878"
     );
 
     @Override
@@ -184,12 +185,46 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        if (BYPASS_NUMBERS.contains(mobile)) {
-            Toast.makeText(this, "Admin Access: Bypassing OTP", Toast.LENGTH_SHORT).show();
-            saveLoginAndNavigate(mobile, "Agent (Admin)");
-            return;
-        }
+        actionButton.setEnabled(false);
+        if (btnActionText != null) btnActionText.setText("Verifying Agent...");
 
+        com.example.laundaryagent.data.repository.FirebaseRepository.getInstance()
+                .getAgentByPhone(mobile,
+                        err -> {
+                            actionButton.setEnabled(true);
+                            if (btnActionText != null) btnActionText.setText("Get OTP");
+                            Toast.makeText(LoginActivity.this, "Agent not found in database", Toast.LENGTH_LONG).show();
+                        },
+                        data -> {
+                            // Agent exists
+                            if (BYPASS_NUMBERS.contains(mobile)) {
+                                Toast.makeText(this, "Admin Access: Bypassing OTP", Toast.LENGTH_SHORT).show();
+                                String name = com.example.laundaryagent.data.repository.FirebaseRepository.str(data, "name");
+                                String fId = com.example.laundaryagent.data.repository.FirebaseRepository.str(data, "franchiseId");
+                                
+                                java.util.List<String> locs = new java.util.ArrayList<>();
+                                Object locObj = data.get("locations");
+                                if (locObj instanceof java.util.List) {
+                                    for (Object o : (java.util.List<?>) locObj) {
+                                        locs.add(String.valueOf(o));
+                                    }
+                                }
+                                
+                                SharedPreferences prefs = getSharedPreferences("LaundryPrefs", MODE_PRIVATE);
+                                prefs.edit()
+                                        .putString("franchise_id", fId)
+                                        .putString("agent_phone", mobile)
+                                        .putString("agent_locations", android.text.TextUtils.join(",", locs))
+                                        .apply();
+                                        
+                                saveLoginAndNavigate(name.isEmpty() ? mobile : name, "Agent (Admin)");
+                            } else {
+                                sendOtpInternal(mobile);
+                            }
+                        });
+    }
+
+    private void sendOtpInternal(String mobile) {
         serverOtp = String.valueOf((int)(Math.random() * 900000) + 100000);
         String message = "Your Verification Code for login is " + serverOtp
                 + ". - Expertskill Technology.";
@@ -201,7 +236,6 @@ public class LoginActivity extends AppCompatActivity {
                 + "&accusage=" + accusage
                 + "&senderid=" + senderId;
 
-        actionButton.setEnabled(false);
         if (btnActionText != null) btnActionText.setText("Sending...");
 
         StringRequest request = new StringRequest(Request.Method.GET, url,
@@ -240,7 +274,38 @@ public class LoginActivity extends AppCompatActivity {
     private void handleVerifyOtp() {
         String inputOtp = otpInput.getText().toString().trim();
         if (inputOtp.equals(serverOtp)) {
-            saveLoginAndNavigate(mobileInput.getText().toString(), "Agent");
+            String mobile = mobileInput.getText().toString().trim();
+            actionButton.setEnabled(false);
+            if (btnActionText != null) btnActionText.setText("Verifying Agent...");
+            
+            com.example.laundaryagent.data.repository.FirebaseRepository.getInstance()
+                    .getAgentByPhone(mobile,
+                            err -> {
+                                actionButton.setEnabled(true);
+                                if (btnActionText != null) btnActionText.setText("Verify & Login");
+                                Toast.makeText(this, "Agent not found in database", Toast.LENGTH_LONG).show();
+                            },
+                            data -> {
+                                String name = com.example.laundaryagent.data.repository.FirebaseRepository.str(data, "name");
+                                String fId = com.example.laundaryagent.data.repository.FirebaseRepository.str(data, "franchiseId");
+                                
+                                java.util.List<String> locs = new java.util.ArrayList<>();
+                                Object locObj = data.get("locations");
+                                if (locObj instanceof java.util.List) {
+                                    for (Object o : (java.util.List<?>) locObj) {
+                                        locs.add(String.valueOf(o));
+                                    }
+                                }
+                                
+                                SharedPreferences prefs = getSharedPreferences("LaundryPrefs", MODE_PRIVATE);
+                                prefs.edit()
+                                        .putString("franchise_id", fId)
+                                        .putString("agent_phone", mobile)
+                                        .putString("agent_locations", android.text.TextUtils.join(",", locs))
+                                        .apply();
+                                        
+                                saveLoginAndNavigate(name.isEmpty() ? mobile : name, "Agent");
+                            });
         } else {
             otpInput.setError("Invalid OTP");
             // Shake the OTP field
@@ -255,11 +320,66 @@ public class LoginActivity extends AppCompatActivity {
         String email    = franchiseEmail.getText().toString().trim();
         String password = franchisePassword.getText().toString().trim();
 
-        if (!email.isEmpty() && !password.isEmpty()) {
-            saveLoginAndNavigate(email, "Franchise Admin");
-        } else {
+        if (email.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, "Please enter email and password", Toast.LENGTH_SHORT).show();
+            return;
         }
+
+        franchiseLoginButton.setEnabled(false);
+        Toast.makeText(this, "Logging in...", Toast.LENGTH_SHORT).show();
+
+        com.google.firebase.auth.FirebaseAuth.getInstance()
+                .signInWithEmailAndPassword(email, password)
+                .addOnSuccessListener(authResult -> {
+                    // Firebase Auth succeeded — allow login regardless of Firestore result
+                    franchiseLoginButton.setEnabled(true);
+                    fetchAndSaveFranchiseDetails(email.trim().toLowerCase(),
+                            () -> saveLoginAndNavigate(email, "Franchise Admin"));
+                })
+                .addOnFailureListener(e -> {
+                    franchiseLoginButton.setEnabled(true);
+                    Toast.makeText(this, "Login Failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                });
+    }
+
+    private void fetchAndSaveFranchiseDetails(String email, Runnable onDone) {
+        com.example.laundaryagent.data.repository.FirebaseRepository.getInstance()
+                .getFranchiseByEmail(email,
+                        err -> {
+                            // Firestore lookup failed — log but still proceed to dashboard
+                            android.util.Log.w("FranchiseLogin", "Firestore lookup failed: " + err);
+                            getSharedPreferences("LaundryPrefs", MODE_PRIVATE).edit()
+                                    .putString("franchise_name", email)
+                                    .putString("franchise_location", "")
+                                    .apply();
+                            onDone.run();
+                        },
+                        data -> {
+                            String name = com.example.laundaryagent.data.repository.FirebaseRepository.str(data, "name");
+                            String locationStr = "";
+                            Object locObj = data.get("location");
+                            if (locObj instanceof java.util.List) {
+                                java.util.List<?> locList = (java.util.List<?>) locObj;
+                                if (!locList.isEmpty()) {
+                                    locationStr = String.valueOf(locList.get(0));
+                                    if (locationStr.contains("::")) {
+                                        String[] parts = locationStr.split("::");
+                                        locationStr = parts[0].trim() + " - " + parts[1].trim();
+                                    }
+                                    if (locList.size() > 1) {
+                                        locationStr += " (+" + (locList.size() - 1) + " more)";
+                                    }
+                                }
+                            } else {
+                                locationStr = com.example.laundaryagent.data.repository.FirebaseRepository.str(data, "address");
+                            }
+                            getSharedPreferences("LaundryPrefs", MODE_PRIVATE).edit()
+                                    .putString("franchise_id", com.example.laundaryagent.data.repository.FirebaseRepository.str(data, "id"))
+                                    .putString("franchise_name", name.isEmpty() ? email : name)
+                                    .putString("franchise_location", locationStr)
+                                    .apply();
+                            onDone.run();
+                        });
     }
 
     private void startResendCountdown() {

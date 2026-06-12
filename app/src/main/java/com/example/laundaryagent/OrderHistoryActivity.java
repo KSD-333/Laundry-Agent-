@@ -26,6 +26,8 @@ public class OrderHistoryActivity extends AppCompatActivity {
     private String currentSocietyFilter = "All Societies";
     private String currentMonthFilter = "All Months";
     private String currentStatusFilter = "All";
+    private com.google.firebase.firestore.ListenerRegistration listenerReg;
+    private String franchiseId = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +36,17 @@ public class OrderHistoryActivity extends AppCompatActivity {
 
         initViews();
         setupFilters();
-        loadMockData();
+        
+        android.content.SharedPreferences prefs = getSharedPreferences("LaundryPrefs", MODE_PRIVATE);
+        franchiseId = prefs.getString("franchise_id", "");
+        
+        loadData();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (listenerReg != null) listenerReg.remove();
+        super.onDestroy();
     }
 
     private void initViews() {
@@ -118,14 +130,19 @@ public class OrderHistoryActivity extends AppCompatActivity {
 
         LinearLayout optionsLayout = popupView.findViewById(R.id.ll_dropdown_options);
 
-        String[] timeframes = {"All Months", "May", "April", "March"};
-        int[] icons = {R.drawable.ic_clock, R.drawable.ic_calendar, R.drawable.ic_calendar, R.drawable.ic_calendar};
+        List<String> timeframes = new ArrayList<>();
+        timeframes.add("All Months");
+        for (OrderHistory order : allHistory) {
+            if (order.month != null && !order.month.isEmpty() && !timeframes.contains(order.month)) {
+                timeframes.add(order.month);
+            }
+        }
 
-        for (int i = 0; i < timeframes.length; i++) {
-            final String month = timeframes[i];
+        for (int i = 0; i < timeframes.size(); i++) {
+            final String month = timeframes.get(i);
             View itemView = getLayoutInflater().inflate(R.layout.item_filter_option, null);
             ((TextView) itemView.findViewById(R.id.tv_option_text)).setText(month);
-            ((ImageView) itemView.findViewById(R.id.iv_option_icon)).setImageResource(icons[i]);
+            ((ImageView) itemView.findViewById(R.id.iv_option_icon)).setImageResource(i == 0 ? R.drawable.ic_clock : R.drawable.ic_calendar);
             
             if (currentMonthFilter.equals(month)) {
                 itemView.findViewById(R.id.iv_check).setVisibility(View.VISIBLE);
@@ -195,17 +212,54 @@ public class OrderHistoryActivity extends AppCompatActivity {
         filterPending.setTextColor(unselectedColor);
     }
 
-    private void loadMockData() {
-        allHistory.add(new OrderHistory("Rahul Sharma", "₹ 450.00", "12:30 PM, 13 May", "Completed", "Amanora Park Town", "May"));
-        allHistory.add(new OrderHistory("Priya Patel", "₹ 320.00", "11:15 AM, 13 May", "Completed", "Blue Ridge Town", "May"));
-        allHistory.add(new OrderHistory("Amit Verma", "₹ 890.00", "09:45 AM, 13 May", "Pending", "Magarpatta City", "May"));
-        allHistory.add(new OrderHistory("Sneha Gupta", "₹ 210.00", "06:20 PM, 12 April", "Completed", "Amanora Park Town", "April"));
-        allHistory.add(new OrderHistory("Vikram Singh", "₹ 550.00", "04:10 PM, 12 April", "Canceled", "Blue Ridge Town", "April"));
-        allHistory.add(new OrderHistory("Anjali Rao", "₹ 1,200.00", "02:30 PM, 12 March", "Completed", "Magarpatta City", "March"));
-        allHistory.add(new OrderHistory("Karan Mehra", "₹ 670.00", "10:00 AM, 12 March", "Pending", "Amanora Park Town", "March"));
+    private void loadData() {
+        listenerReg = com.example.laundaryagent.data.repository.FirebaseRepository.getInstance()
+            .listenFranchiseOrders(franchiseId, docs -> {
+                runOnUiThread(() -> {
+                    allHistory.clear();
+                    for (java.util.Map<String, Object> doc : docs) {
+                        String name = com.example.laundaryagent.data.repository.FirebaseRepository.str(doc, "customerName");
+                        if (name.isEmpty()) name = com.example.laundaryagent.data.repository.FirebaseRepository.str(doc, "phone");
+                        if (name.isEmpty()) name = "Unknown Customer";
 
-        filteredHistory.addAll(allHistory);
-        adapter.notifyDataSetChanged();
+                        Long amount = (Long) doc.get("totalAmount");
+                        String amountStr = amount != null ? "₹ " + amount : "₹ 0";
+
+                        String timeStr = "Unknown time";
+                        String monthStr = "Unknown";
+                        Object timeObj = doc.get("createdAt");
+                        if (timeObj == null) timeObj = doc.get("updatedAt");
+                        if (timeObj instanceof com.google.firebase.Timestamp) {
+                            java.util.Date d = ((com.google.firebase.Timestamp) timeObj).toDate();
+                            timeStr = new java.text.SimpleDateFormat("hh:mm a, dd MMM", java.util.Locale.US).format(d);
+                            monthStr = new java.text.SimpleDateFormat("MMMM", java.util.Locale.US).format(d);
+                        }
+
+                        String status = com.example.laundaryagent.data.repository.FirebaseRepository.str(doc, "status");
+                        if (status.isEmpty()) status = "Pending";
+                        else {
+                            // Capitalize first letter
+                            status = status.substring(0, 1).toUpperCase() + status.substring(1).toLowerCase();
+                        }
+                        if (status.equalsIgnoreCase("pickup_done") || status.equalsIgnoreCase("pickup done")) status = "Pickup Done";
+                        if (status.equalsIgnoreCase("out_for_delivery") || status.equalsIgnoreCase("out for delivery")) status = "Out for Delivery";
+
+                        String society = com.example.laundaryagent.data.repository.FirebaseRepository.str(doc, "society");
+                        if (society.isEmpty()) {
+                            String address = com.example.laundaryagent.data.repository.FirebaseRepository.str(doc, "address");
+                            String[] parts = address.split(",");
+                            society = parts.length > 0 ? parts[0].trim() : "Residence";
+                        }
+
+                        allHistory.add(new OrderHistory(name, amountStr, timeStr, status, society, monthStr));
+                    }
+                    
+                    // Sort descending by time if possible, or just reverse order since newest might be last
+                    java.util.Collections.reverse(allHistory);
+                    
+                    applyFilter(null);
+                });
+            });
     }
 
     private static class OrderHistory {

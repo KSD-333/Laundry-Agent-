@@ -201,16 +201,18 @@
             <!-- OTP input boxes -->
             <LinearLayout android:id="@+id/otp_input_section" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
 
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Enter 4-digit OTP sent to customer" android:textColor="#64748B" android:textSize="12sp" android:layout_marginBottom="12dp"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Enter 6-digit OTP sent to customer" android:textColor="#64748B" android:textSize="12sp" android:layout_marginBottom="12dp"/>
 
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:orientation="horizontal" android:layout_marginBottom="16dp">
-                    <EditText android:id="@+id/otp_1" android:layout_width="56dp" android:layout_height="60dp" android:layout_marginEnd="8dp" android:background="@drawable/bg_otp_input" android:gravity="center" android:inputType="number" android:maxLength="1" android:textColor="#0F172A" android:textSize="22sp" android:textStyle="bold"/>
-                    <EditText android:id="@+id/otp_2" android:layout_width="56dp" android:layout_height="60dp" android:layout_marginEnd="8dp" android:background="@drawable/bg_otp_input" android:gravity="center" android:inputType="number" android:maxLength="1" android:textColor="#0F172A" android:textSize="22sp" android:textStyle="bold"/>
-                    <EditText android:id="@+id/otp_3" android:layout_width="56dp" android:layout_height="60dp" android:layout_marginEnd="8dp" android:background="@drawable/bg_otp_input" android:gravity="center" android:inputType="number" android:maxLength="1" android:textColor="#0F172A" android:textSize="22sp" android:textStyle="bold"/>
-                    <EditText android:id="@+id/otp_4" android:layout_width="56dp" android:layout_height="60dp" android:background="@drawable/bg_otp_input" android:gravity="center" android:inputType="number" android:maxLength="1" android:textColor="#0F172A" android:textSize="22sp" android:textStyle="bold"/>
+                    <EditText android:id="@+id/otp_1" android:layout_width="44dp" android:layout_height="54dp" android:layout_marginEnd="6dp" android:background="@drawable/bg_otp_input" android:gravity="center" android:inputType="number" android:maxLength="1" android:textColor="#0F172A" android:textSize="20sp" android:textStyle="bold"/>
+                    <EditText android:id="@+id/otp_2" android:layout_width="44dp" android:layout_height="54dp" android:layout_marginEnd="6dp" android:background="@drawable/bg_otp_input" android:gravity="center" android:inputType="number" android:maxLength="1" android:textColor="#0F172A" android:textSize="20sp" android:textStyle="bold"/>
+                    <EditText android:id="@+id/otp_3" android:layout_width="44dp" android:layout_height="54dp" android:layout_marginEnd="6dp" android:background="@drawable/bg_otp_input" android:gravity="center" android:inputType="number" android:maxLength="1" android:textColor="#0F172A" android:textSize="20sp" android:textStyle="bold"/>
+                    <EditText android:id="@+id/otp_4" android:layout_width="44dp" android:layout_height="54dp" android:layout_marginEnd="6dp" android:background="@drawable/bg_otp_input" android:gravity="center" android:inputType="number" android:maxLength="1" android:textColor="#0F172A" android:textSize="20sp" android:textStyle="bold"/>
+                    <EditText android:id="@+id/otp_5" android:layout_width="44dp" android:layout_height="54dp" android:layout_marginEnd="6dp" android:background="@drawable/bg_otp_input" android:gravity="center" android:inputType="number" android:maxLength="1" android:textColor="#0F172A" android:textSize="20sp" android:textStyle="bold"/>
+                    <EditText android:id="@+id/otp_6" android:layout_width="44dp" android:layout_height="54dp" android:background="@drawable/bg_otp_input" android:gravity="center" android:inputType="number" android:maxLength="1" android:textColor="#0F172A" android:textSize="20sp" android:textStyle="bold"/>
                 </LinearLayout>
 
-                <TextView android:id="@+id/tv_otp_hint" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Demo OTP: 1234" android:textColor="#94A3B8" android:textSize="11sp" android:layout_gravity="center_horizontal" android:layout_marginBottom="4dp"/>
+                <TextView android:id="@+id/tv_otp_hint" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Demo OTP: 123456" android:textColor="#94A3B8" android:textSize="11sp" android:layout_gravity="center_horizontal" android:layout_marginBottom="4dp"/>
 
             </LinearLayout>
 

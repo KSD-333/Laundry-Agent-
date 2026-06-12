@@ -29,11 +29,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import androidx.lifecycle.ViewModelProvider;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 public class ReportsFragment extends Fragment {
 
-    private FirebaseRepository repository;
+    private TaskViewModel viewModel;
     private ViewPager2 viewPager;
-    private ListenerRegistration reportListener;
     
     private TextView reportPickupCount, reportDeliveryCount, percentageText, summaryText;
     private CircularProgressIndicator progress;
@@ -43,8 +47,6 @@ public class ReportsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_reports, container, false);
-
-        repository = FirebaseRepository.getInstance();
 
         reportPickupCount   = view.findViewById(R.id.report_pickup_count);
         reportDeliveryCount = view.findViewById(R.id.report_delivery_count);
@@ -60,36 +62,53 @@ public class ReportsFragment extends Fragment {
                 tab.setText(position == 0 ? "Pickup Tasks" : "Delivery Tasks")
         ).attach();
 
-        attachFirebaseListener();
+        viewModel = new ViewModelProvider(requireActivity()).get(TaskViewModel.class);
+        
+        viewModel.getOrderItems(getContext()).observe(getViewLifecycleOwner(), items -> {
+            updateHeaderStats(items);
+        });
+        
+        viewModel.getSelectedDate().observe(getViewLifecycleOwner(), date -> {
+            List<OrderItem> items = viewModel.getOrderItems(getContext()).getValue();
+            if (items != null) {
+                updateHeaderStats(items);
+            }
+        });
 
         return view;
     }
 
-    private void attachFirebaseListener() {
-        reportListener = repository.listenAllOrdersForTasks(docs -> {
-            if (getActivity() == null) return;
-            getActivity().runOnUiThread(() -> updateHeaderStats(docs));
-        });
-    }
-
-    private void updateHeaderStats(List<Map<String, Object>> docs) {
+    private void updateHeaderStats(List<OrderItem> items) {
         int pickups = 0;
         int deliveries = 0;
         int completed = 0;
+        int total = 0;
         
-        for (Map<String, Object> doc : docs) {
-            String status = FirebaseRepository.str(doc, "status").toLowerCase();
+        String today = viewModel.getSelectedDate().getValue();
+        String targetDate = normalizeDateStr(today);
+
+        for (OrderItem item : items) {
+            String pDate = normalizeDateStr(item.getPickupDate());
+            String dDate = normalizeDateStr(item.getDeliveryDate());
+            
+            boolean matchesPickupDate = !pDate.isEmpty() && pDate.equals(targetDate);
+            boolean matchesDeliveryDate = !dDate.isEmpty() && dDate.equals(targetDate);
+            
+            if (!matchesPickupDate && !matchesDeliveryDate) continue;
+            total++;
+
+            OrderStatus status = item.getStatus();
             
             // Pickup side
-            if (status.equals("pending") || status.equals("picking pending") || status.equals("pickup_done")) {
+            if (matchesPickupDate && (status == OrderStatus.PENDING || status == OrderStatus.PICKING_PENDING || status == OrderStatus.PICKUP_DONE)) {
                 pickups++;
             }
             // Delivery side
-            if (status.equals("ready") || status.equals("out_for_delivery") || status.equals("delivered") || status.equals("completed")) {
+            if (matchesDeliveryDate && (status == OrderStatus.READY || status == OrderStatus.OUT_FOR_DELIVERY || status == OrderStatus.COMPLETED)) {
                 deliveries++;
             }
             
-            if (status.equals("completed") || status.equals("delivered")) {
+            if ((matchesPickupDate || matchesDeliveryDate) && (status == OrderStatus.COMPLETED || status == OrderStatus.DELIVERED)) {
                 completed++;
             }
         }
@@ -97,7 +116,6 @@ public class ReportsFragment extends Fragment {
         if (reportPickupCount != null) reportPickupCount.setText(String.valueOf(pickups));
         if (reportDeliveryCount != null) reportDeliveryCount.setText(String.valueOf(deliveries));
 
-        int total = docs.size();
         int percent = total > 0 ? (completed * 100) / total : 0;
         
         if (progress != null) progress.setProgress(percent, true);
@@ -107,8 +125,16 @@ public class ReportsFragment extends Fragment {
 
     @Override
     public void onDestroyView() {
-        if (reportListener != null) reportListener.remove();
         super.onDestroyView();
+    }
+    
+    private static String normalizeDateStr(String date) {
+        if (date == null) return "";
+        String s = date.toLowerCase().replaceAll("[^a-z0-9]", " ").replaceAll("\\s+", " ").trim();
+        if (s.startsWith("0") && s.length() > 1 && Character.isDigit(s.charAt(1))) {
+            s = s.substring(1);
+        }
+        return s;
     }
 
     // ── Pager adapter ──────────────────────────────────────────────────────
@@ -179,61 +205,80 @@ public class ReportsFragment extends Fragment {
         }
 
         private void attachFirebaseListener() {
-            FirebaseRepository fb = FirebaseRepository.getInstance();
-            pageListener = fb.listenAllOrdersForTasks(docs -> {
-                if (getActivity() == null) return;
-                getActivity().runOnUiThread(() -> {
-                    shownOrders.clear();
-                    for (Map<String, Object> doc : docs) {
-                        OrderItem item = mapToOrderItem(doc);
-                        
-                        // Resolve name if missing
-                        if (item.getCustomerName().equals(item.getPhone())) {
-                            FirebaseRepository.getInstance().fetchNameForPhone(item.getPhone(), name -> {
-                                if (!name.equals("Unknown") && getActivity() != null) {
-                                    getActivity().runOnUiThread(() -> {
-                                        for (int i = 0; i < shownOrders.size(); i++) {
-                                            if (shownOrders.get(i).getPhone().equals(item.getPhone())) {
-                                                shownOrders.set(i, shownOrders.get(i).copyWithName(name));
-                                            }
-                                        }
-                                        if (adapter != null) adapter.notifyDataSetChanged();
-                                    });
-                                }
-                            });
-                        }
-                        
-                        boolean isCompleted = (item.getStatus() == OrderStatus.COMPLETED);
-                        
-                        if (isPickup) {
-                            // Show all that were part of pickup process
-                            shownOrders.add(item);
-                        } else {
-                            // Show all that are part of delivery process
-                            if (item.getStatus() == OrderStatus.READY || item.getStatus() == OrderStatus.OUT_FOR_DELIVERY 
-                                    || item.getStatus() == OrderStatus.COMPLETED || item.getStatus() == OrderStatus.PICKUP_DONE) {
-                                shownOrders.add(item);
-                            }
-                        }
+            TaskViewModel viewModel = new ViewModelProvider(requireActivity()).get(TaskViewModel.class);
+            
+            viewModel.getOrderItems(getContext()).observe(getViewLifecycleOwner(), items -> {
+                updateList(items, viewModel.getSelectedDate().getValue());
+            });
+            
+            viewModel.getSelectedDate().observe(getViewLifecycleOwner(), date -> {
+                List<OrderItem> items = viewModel.getOrderItems(getContext()).getValue();
+                if (items != null) updateList(items, date);
+            });
+        }
+        
+        private void updateList(List<OrderItem> items, String today) {
+            if (getActivity() == null) return;
+            getActivity().runOnUiThread(() -> {
+                shownOrders.clear();
+                
+                String targetDate = normalizeDateStr(today);
+                
+                for (OrderItem item : items) {
+                    String pDate = normalizeDateStr(item.getPickupDate());
+                    String dDate = normalizeDateStr(item.getDeliveryDate());
+                    
+                    boolean matchesPickupDate = !pDate.isEmpty() && pDate.equals(targetDate);
+                    boolean matchesDeliveryDate = !dDate.isEmpty() && dDate.equals(targetDate);
+                    
+                    if (isPickup) {
+                        if (!matchesPickupDate) continue;
+                    } else {
+                        if (!matchesDeliveryDate) continue;
                     }
                     
-                    // Sort: Active/Pending first, Completed at the bottom
-                    java.util.Collections.sort(shownOrders, (a, b) -> {
-                        boolean aDone = isPickup ? 
-                            (a.getStatus() != OrderStatus.PENDING) : 
-                            (a.getStatus() == OrderStatus.COMPLETED);
-                        boolean bDone = isPickup ? 
-                            (b.getStatus() != OrderStatus.PENDING) : 
-                            (b.getStatus() == OrderStatus.COMPLETED);
-                        if (aDone && !bDone) return 1;
-                        if (!aDone && bDone) return -1;
-                        return 0;
-                    });
+                    // Resolve name if missing
+                    if (item.getCustomerName().equals(item.getPhone())) {
+                        FirebaseRepository.getInstance().fetchNameForPhone(item.getPhone(), name -> {
+                            if (!name.equals("Unknown") && getActivity() != null) {
+                                getActivity().runOnUiThread(() -> {
+                                    for (int i = 0; i < shownOrders.size(); i++) {
+                                        if (shownOrders.get(i).getPhone().equals(item.getPhone())) {
+                                            shownOrders.set(i, shownOrders.get(i).copyWithName(name));
+                                        }
+                                    }
+                                    if (adapter != null) adapter.notifyDataSetChanged();
+                                });
+                            }
+                        });
+                    }
                     
-                    if (adapter != null) adapter.notifyDataSetChanged();
-                    TextView badge = getView() != null ? getView().findViewById(R.id.section_badge) : null;
-                    if (badge != null) badge.setText(String.valueOf(shownOrders.size()));
+                    if (isPickup) {
+                        shownOrders.add(item);
+                    } else {
+                        if (item.getStatus() == OrderStatus.READY || item.getStatus() == OrderStatus.OUT_FOR_DELIVERY 
+                                || item.getStatus() == OrderStatus.COMPLETED || item.getStatus() == OrderStatus.PICKUP_DONE) {
+                            shownOrders.add(item);
+                        }
+                    }
+                }
+                
+                // Sort: Active/Pending first, Completed at the bottom
+                java.util.Collections.sort(shownOrders, (a, b) -> {
+                    boolean aDone = isPickup ? 
+                        (a.getStatus() != OrderStatus.PENDING) : 
+                        (a.getStatus() == OrderStatus.COMPLETED);
+                    boolean bDone = isPickup ? 
+                        (b.getStatus() != OrderStatus.PENDING) : 
+                        (b.getStatus() == OrderStatus.COMPLETED);
+                    if (aDone && !bDone) return 1;
+                    if (!aDone && bDone) return -1;
+                    return 0;
                 });
+                
+                if (adapter != null) adapter.notifyDataSetChanged();
+                TextView badge = getView() != null ? getView().findViewById(R.id.section_badge) : null;
+                if (badge != null) badge.setText(String.valueOf(shownOrders.size()));
             });
         }
 

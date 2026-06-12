@@ -30,29 +30,17 @@ import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 public class TasksFragment extends Fragment {
 
     private ViewPager2 viewPager;
-    private String selectedSociety = "All Societies";
     private TextView societyText, doneCountText, pendingCountText, dateText;
     private TaskViewModel viewModel;
-    private ListenerRegistration badgeListenerReg;
     private TextView notificationBadge;
 
-    private final List<String> ALL_SOCIETIES = Arrays.asList(
-            "All Societies",
-            "Amanora Park Town",
-            "Magarpatta City",
-            "Blue Ridge Town",
-            "EON Waterfront",
-            "Riverdale Residences",
-            "Godrej Infinity",
-            "Yoo Pune"
-    );
+    private final List<String> ALL_SOCIETIES = new ArrayList<>();
 
     @Nullable
     @Override
@@ -72,20 +60,37 @@ public class TasksFragment extends Fragment {
         if (agentName != null) agentName.setText(name);
 
         viewModel = new ViewModelProvider(requireActivity()).get(TaskViewModel.class);
+
+        ALL_SOCIETIES.clear();
+        ALL_SOCIETIES.add("All Societies");
+
+        // Get the agent's phone from session (user_identity holds phone when name isn't set)
+        String storedPhone = prefs.getString("agent_phone", "");
+        if (storedPhone.isEmpty()) {
+            String identity = prefs.getString("user_identity", "");
+            if (identity.matches("\\d{10}")) storedPhone = identity;
+        }
+        final String agentPhone = storedPhone;
+
+        if (!agentPhone.isEmpty()) {
+            viewModel.getSocieties(getContext(), agentPhone).observe(getViewLifecycleOwner(), societies -> {
+                for (String s : societies) {
+                    if (!ALL_SOCIETIES.contains(s)) ALL_SOCIETIES.add(s);
+                }
+            });
+        } else {
+            Toast.makeText(requireContext(), "No agent phone found!", Toast.LENGTH_LONG).show();
+        }
+        
+        viewModel.getSelectedSociety().observe(getViewLifecycleOwner(), society -> {
+            if (societyText != null) societyText.setText(society);
+            recalculateCounts();
+        });
+        
+        viewModel.getOrderItems(getContext()).observe(getViewLifecycleOwner(), items -> recalculateCounts());
         viewModel.getSelectedDate().observe(getViewLifecycleOwner(), date -> {
             if (dateText != null) dateText.setText("Date: " + date);
-            
-            // Re-trigger global badge listener for the selected date
-            if (badgeListenerReg != null) badgeListenerReg.remove();
-            badgeListenerReg = FirebaseRepository.getInstance().listenPendingOrders(date, count -> {
-                if (getActivity() == null) return;
-                getActivity().runOnUiThread(() -> {
-                    if (notificationBadge != null) {
-                        notificationBadge.setText(String.valueOf(count));
-                        notificationBadge.setVisibility(count > 0 ? View.VISIBLE : View.GONE);
-                    }
-                });
-            });
+            recalculateCounts();
         });
 
         viewPager = view.findViewById(R.id.tasks_view_pager);
@@ -101,7 +106,7 @@ public class TasksFragment extends Fragment {
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
-                updateHeaderCounts(0, 0);
+                recalculateCounts();
             }
         });
 
@@ -114,6 +119,13 @@ public class TasksFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (viewPager != null) {
+            viewPager.setAdapter(null);
+        }
+    }
     private void showDatePicker() {
         java.util.Calendar cal = java.util.Calendar.getInstance();
         new android.app.DatePickerDialog(requireContext(), (view, year, month, dayOfMonth) -> {
@@ -124,10 +136,68 @@ public class TasksFragment extends Fragment {
         }, cal.get(java.util.Calendar.YEAR), cal.get(java.util.Calendar.MONTH), cal.get(java.util.Calendar.DAY_OF_MONTH)).show();
     }
 
-    // Called by child fragments when their count changes
+    // Called to calculate counts dynamically instead of relying on child fragments
     public void updateHeaderCounts(int done, int pending) {
+        // Keep for backwards compatibility if needed, but not used.
+    }
+
+    private void recalculateCounts() {
+        if (viewModel == null || viewPager == null) return;
+        android.content.Context context = getContext();
+        if (context == null) return;
+        List<OrderItem> items = viewModel.getOrderItems(context).getValue();
+        String date = viewModel.getSelectedDate().getValue();
+        if (items == null || date == null) return;
+
+        int done = 0, pending = 0;
+        int globalBadgePending = 0;
+        int tabType = viewPager.getCurrentItem(); // 0 = Pickup, 1 = Delivery
+
+        String targetDate = normalizeDateStr(date);
+
+        for (OrderItem o : items) {
+            String rawDatePickup = o.getPickupDate();
+            String pickupDateStr = normalizeDateStr(rawDatePickup);
+            if (pickupDateStr.equals(targetDate) && (o.getStatus() == OrderStatus.PENDING || o.getStatus() == OrderStatus.PICKING_PENDING)) {
+                globalBadgePending++;
+            }
+
+            String selectedSoc = viewModel.getSelectedSociety().getValue();
+            if (selectedSoc == null) selectedSoc = "All Societies";
+            boolean matchesSociety = selectedSoc.equals("All Societies") || selectedSoc.equals(o.getSociety());
+            if (!matchesSociety) continue;
+
+            boolean isPickupTab = (tabType == 0);
+            String rawDate = isPickupTab ? o.getPickupDate() : o.getDeliveryDate();
+            String orderDate = normalizeDateStr(rawDate);
+
+            if (orderDate.isEmpty() || !orderDate.equals(targetDate)) continue;
+
+            if (isPickupTab) {
+                boolean isPendingPickup = (o.getStatus() == OrderStatus.PENDING || o.getStatus() == OrderStatus.PICKING_PENDING);
+                if (isPendingPickup) pending++;
+                else done++;
+            } else {
+                boolean isDone = (o.getStatus() == OrderStatus.COMPLETED || o.getStatus() == OrderStatus.DELIVERED);
+                if (isDone) done++;
+                else pending++;
+            }
+        }
         if (doneCountText != null) doneCountText.setText(String.valueOf(done));
         if (pendingCountText != null) pendingCountText.setText(String.valueOf(pending));
+        if (notificationBadge != null) {
+            notificationBadge.setText(String.valueOf(globalBadgePending));
+            notificationBadge.setVisibility(globalBadgePending > 0 ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    private String normalizeDateStr(String date) {
+        if (date == null) return "";
+        String s = date.toLowerCase().replaceAll("[^a-z0-9]", " ").replaceAll("\\s+", " ").trim();
+        if (s.startsWith("0") && s.length() > 1 && Character.isDigit(s.charAt(1))) {
+            s = s.substring(1);
+        }
+        return s;
     }
 
     private void showSocietyPicker() {
@@ -140,9 +210,7 @@ public class TasksFragment extends Fragment {
 
         List<String> displayList = new ArrayList<>(ALL_SOCIETIES);
         SocietyPickerAdapter pickerAdapter = new SocietyPickerAdapter(displayList, s -> {
-            selectedSociety = s;
-            societyText.setText(s);
-            viewPager.setAdapter(new TaskPagerAdapter(this));
+            viewModel.setSelectedSociety(s);
             dialog.dismiss();
         });
         pickerRecycler.setAdapter(pickerAdapter);
@@ -164,11 +232,12 @@ public class TasksFragment extends Fragment {
     }
 
     private void openSocietyMap() {
-        if (selectedSociety.equals("All Societies")) {
+        String currentSociety = viewModel.getSelectedSociety().getValue();
+        if (currentSociety == null || currentSociety.equals("All Societies")) {
             Toast.makeText(getContext(), "Please select a specific society", Toast.LENGTH_SHORT).show();
             return;
         }
-        Uri uri = Uri.parse("geo:0,0?q=" + Uri.encode(selectedSociety));
+        Uri uri = Uri.parse("geo:0,0?q=" + Uri.encode(currentSociety));
         Intent mapIntent = new Intent(Intent.ACTION_VIEW, uri);
         mapIntent.setPackage("com.google.android.apps.maps");
         if (mapIntent.resolveActivity(requireActivity().getPackageManager()) != null)
@@ -188,7 +257,7 @@ public class TasksFragment extends Fragment {
         @NonNull
         @Override
         public Fragment createFragment(int position) {
-            return TaskListPageFragment.newInstance(position, parent.selectedSociety);
+            return TaskListPageFragment.newInstance(position);
         }
         @Override
         public int getItemCount() { return 2; }
@@ -198,7 +267,7 @@ public class TasksFragment extends Fragment {
 
     public static class TaskListPageFragment extends Fragment {
         private int tabType;      // 0 = Pickup Tasks, 1 = Delivery Tasks
-        private String society;
+        private String society = "All Societies";
 
         // Fired-order lists from Firebase
         private final List<OrderItem> allOrders   = new ArrayList<>();
@@ -207,11 +276,10 @@ public class TasksFragment extends Fragment {
         private RecyclerView rv;
         private TaskViewModel viewModel;
 
-        public static TaskListPageFragment newInstance(int type, String society) {
+        public static TaskListPageFragment newInstance(int type) {
             TaskListPageFragment f = new TaskListPageFragment();
             Bundle args = new Bundle();
             args.putInt("type", type);
-            args.putString("society", society);
             f.setArguments(args);
             return f;
         }
@@ -222,7 +290,6 @@ public class TasksFragment extends Fragment {
                                  @Nullable Bundle savedInstanceState) {
             Bundle args = getArguments();
             tabType = args != null ? args.getInt("type") : 0;
-            society = args != null ? args.getString("society", "All Societies") : "All Societies";
 
             rv = new RecyclerView(requireContext());
             rv.setLayoutParams(new ViewGroup.LayoutParams(
@@ -237,6 +304,10 @@ public class TasksFragment extends Fragment {
             viewModel = new ViewModelProvider(requireActivity()).get(TaskViewModel.class);
             viewModel.getOrderItems(getContext()).observe(getViewLifecycleOwner(), this::onOrdersReceived);
             viewModel.getSelectedDate().observe(getViewLifecycleOwner(), date -> applyFilter());
+            viewModel.getSelectedSociety().observe(getViewLifecycleOwner(), soc -> {
+                this.society = soc;
+                applyFilter();
+            });
             
             return rv;
         }
@@ -269,9 +340,9 @@ public class TasksFragment extends Fragment {
                 boolean isPickupTab = (tabType == 0);
                 String rawDate = isPickupTab ? o.getPickupDate() : o.getDeliveryDate();
                 
-                // Aggressive normalization: "18 May 2026" -> "18 may 2026", "18/05/2026" -> "18 05 2026"
-                String orderDate = rawDate.toLowerCase().replaceAll("[^a-z0-9]", " ").replaceAll("\\s+", " ").trim();
-                String targetDate = today.toLowerCase().replaceAll("[^a-z0-9]", " ").replaceAll("\\s+", " ").trim();
+                // Aggressive normalization: "18 May 2026" -> "18 may 2026"
+                String orderDate = normalizeDateStr(rawDate);
+                String targetDate = normalizeDateStr(today);
 
                 // Strictly filter for selected date. If date is missing, skip it.
                 if (orderDate.isEmpty() || !orderDate.equals(targetDate)) continue;
@@ -296,10 +367,7 @@ public class TasksFragment extends Fragment {
                 }
             }
             
-            // Update the counts in the header
-            if (getParentFragment() instanceof TasksFragment) {
-                ((TasksFragment) getParentFragment()).updateHeaderCounts(done, pending);
-            }
+            // Counts are now handled centrally by TasksFragment.recalculateCounts()
             
             // Sort: Active/Pending first, Completed at the bottom
             java.util.Collections.sort(shownOrders, (a, b) -> {
@@ -316,6 +384,16 @@ public class TasksFragment extends Fragment {
             });
 
             if (adapter != null) adapter.notifyDataSetChanged();
+        }
+        
+        private String normalizeDateStr(String date) {
+            if (date == null) return "";
+            String s = date.toLowerCase().replaceAll("[^a-z0-9]", " ").replaceAll("\\s+", " ").trim();
+            // Remove leading zero on the day if present (e.g. "01 jun 2026" -> "1 jun 2026")
+            if (s.startsWith("0") && s.length() > 1 && Character.isDigit(s.charAt(1))) {
+                s = s.substring(1);
+            }
+            return s;
         }
 
         private void onOrderClick(OrderItem order) {

@@ -81,7 +81,14 @@ public class CompletedDeliveriesActivity extends AppCompatActivity {
     }
 
     private void loadData() {
-        listenerReg = FirebaseRepository.getInstance().listenAllOrdersForTasks(docs -> {
+        String franchiseId = "";
+        if (getIntent().hasExtra("franchise_id")) {
+            franchiseId = getIntent().getStringExtra("franchise_id");
+        } else {
+            franchiseId = getSharedPreferences("LaundryPrefs", MODE_PRIVATE).getString("franchise_id", "");
+        }
+
+        listenerReg = FirebaseRepository.getInstance().listenFranchiseOrders(franchiseId, docs -> {
             runOnUiThread(() -> {
                 allOrders.clear();
                 for (Map<String, Object> doc : docs) {
@@ -226,7 +233,13 @@ public class CompletedDeliveriesActivity extends AppCompatActivity {
 
         android.widget.LinearLayout optionsLayout = popupView.findViewById(R.id.ll_dropdown_options);
 
-        String[] societies = {"All Societies", "Amanora Park Town", "Magarpatta City", "Kalyani Nagar", "Viman Nagar"};
+        List<String> societies = new ArrayList<>();
+        societies.add("All Societies");
+        for (OrderItem o : allOrders) {
+            if (o.getSociety() != null && !o.getSociety().isEmpty() && !societies.contains(o.getSociety())) {
+                societies.add(o.getSociety());
+            }
+        }
         
         for (String society : societies) {
             View itemView = getLayoutInflater().inflate(R.layout.item_filter_option, null);

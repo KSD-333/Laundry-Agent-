@@ -40,6 +40,7 @@ public class RevenueActivity extends AppCompatActivity {
     
     private MaterialButton btnFilter;
     private final List<ListenerRegistration> listeners = new ArrayList<>();
+    private final List<java.util.Map<String, Object>> allOrderDocs = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,21 +79,19 @@ public class RevenueActivity extends AppCompatActivity {
         progressDry = findViewById(R.id.progress_dry);
         progressIron = findViewById(R.id.progress_iron);
 
-        // Live: Overall Orders (lifetime)
-        FirebaseRepository fb = FirebaseRepository.getInstance();
-        listeners.add(fb.listenTotalOrders(count -> runOnUiThread(() ->
-            tvOverallOrders.setText(String.valueOf(12850 + count)))));
+        android.content.SharedPreferences prefs = getSharedPreferences("LaundryPrefs", MODE_PRIVATE);
+        String franchiseId = prefs.getString("franchise_id", "");
 
-        // Live: Overall Revenue (sum of all completed order amounts)
-        fb.getTotalRevenue(
-            err -> runOnUiThread(() -> tvOverallRevenue.setText("₹ 14,50,000")),
-            total -> runOnUiThread(() ->
-                tvOverallRevenue.setText("₹" + String.format("%,d", 1450000 + total))));
+        listeners.add(FirebaseRepository.getInstance().listenFranchiseOrders(franchiseId, docs -> {
+            runOnUiThread(() -> {
+                allOrderDocs.clear();
+                allOrderDocs.addAll(docs);
+                recalculateOverallStats();
+                updateGraphData(tvCurrentFilter.getText().toString());
+            });
+        }));
 
         setupClickListeners();
-        
-        // Default to 1 Week
-        updateGraphData("Past 1 Week");
     }
 
     private void setupClickListeners() {
@@ -149,44 +148,90 @@ public class RevenueActivity extends AppCompatActivity {
         if (tvFilteredOrdersLabel != null) {
             tvFilteredOrdersLabel.setText("Orders (" + range + ")");
         }
-        switch (range) {
-            case "Past 1 Day":
-                renderView("₹4,500", "24", "₹5k", "₹2.5k",
-                    new int[]{1200, 2500, 1800, 3200, 4100, 2800}, 
-                    new String[]{"8AM", "10AM", "12PM", "2PM", "4PM", "6PM"},
-                    new int[]{2800, 1200, 500});
-                break;
-            case "Past 1 Week":
-                renderView("₹32,400", "184", "₹10k", "₹5k",
-                    new int[]{4200, 6800, 5100, 8400, 9200, 7100, 4500}, 
-                    new String[]{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"},
-                    new int[]{21060, 8100, 3240});
-                break;
-            case "Past 1 Month":
-                renderView("₹1,24,500", "742", "₹40k", "₹20k",
-                    new int[]{28000, 35000, 21000, 42000}, 
-                    new String[]{"Week 1", "Week 2", "Week 3", "Week 4"},
-                    new int[]{80925, 31125, 12450});
-                break;
-            case "Past 3 Months":
-                renderView("₹3,80,000", "2,140", "₹150k", "₹75k",
-                    new int[]{110000, 145000, 125000}, 
-                    new String[]{"Oct", "Nov", "Dec"},
-                    new int[]{247000, 95000, 38000});
-                break;
-            case "Past 6 Months":
-                renderView("₹7,50,000", "4,280", "₹150k", "₹75k",
-                    new int[]{120000, 140000, 110000, 160000, 180000, 140000}, 
-                    new String[]{"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"},
-                    new int[]{487500, 187500, 75000});
-                break;
-            case "Past 1 Year":
-                renderView("₹15,20,000", "8,940", "₹200k", "₹100k",
-                    new int[]{90000, 110000, 130000, 120000, 150000, 140000, 160000, 180000, 170000, 190000, 200000, 180000}, 
-                    new String[]{"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"},
-                    new int[]{988000, 380000, 152000});
-                break;
+        if (range.equals("Past 1 Day")) calculateGraphForRange(1, 6, range);
+        else if (range.equals("Past 1 Week")) calculateGraphForRange(7, 7, range);
+        else if (range.equals("Past 1 Month")) calculateGraphForRange(30, 4, range);
+        else if (range.equals("Past 3 Months")) calculateGraphForRange(90, 3, range);
+        else if (range.equals("Past 6 Months")) calculateGraphForRange(180, 6, range);
+        else if (range.equals("Past 1 Year")) calculateGraphForRange(365, 12, range);
+        else calculateGraphForRange(30, 4, range); // fallback for custom
+    }
+
+    private void recalculateOverallStats() {
+        long totalRev = 0;
+        int totalOrders = 0;
+        for (java.util.Map<String, Object> doc : allOrderDocs) {
+            String status = FirebaseRepository.str(doc, "status").toLowerCase();
+            if (status.equals("completed") || status.equals("delivered")) {
+                totalOrders++;
+                Long amount = (Long) doc.get("totalAmount");
+                if (amount != null) totalRev += amount;
+            }
         }
+        tvOverallOrders.setText(String.valueOf(totalOrders));
+        tvOverallRevenue.setText("₹ " + String.format(Locale.US, "%,d", totalRev));
+    }
+
+    private void calculateGraphForRange(int days, int numBars, String rangeStr) {
+        long[] revBars = new long[numBars];
+        String[] labels = new String[numBars];
+        long totalRev = 0;
+        int totalOrders = 0;
+        long washRev = 0, dryRev = 0, ironRev = 0;
+        
+        long now = System.currentTimeMillis();
+        long interval = (days * 24L * 60 * 60 * 1000) / numBars;
+        
+        for (int i = 0; i < numBars; i++) {
+            long barEnd = now - (numBars - 1 - i) * interval;
+            if (days == 1) labels[i] = new SimpleDateFormat("ha", Locale.US).format(new Date(barEnd));
+            else if (days <= 7) labels[i] = new SimpleDateFormat("EEE", Locale.US).format(new Date(barEnd));
+            else if (days <= 30) labels[i] = "W" + (i+1);
+            else labels[i] = new SimpleDateFormat("MMM", Locale.US).format(new Date(barEnd));
+        }
+
+        for (java.util.Map<String, Object> doc : allOrderDocs) {
+            String status = FirebaseRepository.str(doc, "status").toLowerCase();
+            if (!(status.equals("completed") || status.equals("delivered"))) continue;
+            
+            long orderTime = now; // fallback
+            Object timeObj = doc.get("createdAt");
+            if (timeObj == null) timeObj = doc.get("updatedAt");
+            if (timeObj instanceof com.google.firebase.Timestamp) {
+                orderTime = ((com.google.firebase.Timestamp) timeObj).toDate().getTime();
+            }
+            
+            long timeDiff = now - orderTime;
+            if (timeDiff <= days * 24L * 60 * 60 * 1000 && timeDiff >= 0) {
+                totalOrders++;
+                Long amount = (Long) doc.get("totalAmount");
+                long amt = amount != null ? amount : 0;
+                totalRev += amt;
+                
+                int barIdx = numBars - 1 - (int)(timeDiff / interval);
+                if (barIdx >= 0 && barIdx < numBars) {
+                    revBars[barIdx] += amt;
+                }
+
+                // mock service breakdown proportionally for now
+                washRev += (long)(amt * 0.5);
+                dryRev += (long)(amt * 0.3);
+                ironRev += (long)(amt * 0.2);
+            }
+        }
+        
+        int[] intBars = new int[numBars];
+        long maxBar = 0;
+        for (int i = 0; i < numBars; i++) {
+            intBars[i] = (int) revBars[i];
+            if (revBars[i] > maxBar) maxBar = revBars[i];
+        }
+        
+        String yTop = "₹" + (maxBar > 0 ? (maxBar + (maxBar/5)) : 1000);
+        String yMid = "₹" + (maxBar > 0 ? (maxBar/2) : 500);
+
+        renderView("₹ " + String.format(Locale.US, "%,d", totalRev), String.valueOf(totalOrders), yTop, yMid,
+                intBars, labels, new int[]{(int)washRev, (int)dryRev, (int)ironRev});
     }
 
     private void renderView(String rev, String orders, String yTop, String yMid, int[] barData, String[] xLabels, int[] serviceData) {
