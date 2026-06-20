@@ -194,9 +194,40 @@ public class DeliveryDetailActivity extends AppCompatActivity {
             });
         }
 
-        ((TextView) findViewById(R.id.addr_full)).setText(address);
-        ((TextView) findViewById(R.id.addr_society)).setText(society.isEmpty() ? "Residential Area" : society);
-        
+        // Parse address into individual boxes (flat / building / society / area)
+        if (address != null && !address.isEmpty()) {
+            String[] parts = address.split(",");
+            String flat     = parts.length > 0 ? parts[0].trim() : address;
+            String building = parts.length > 1 ? parts[1].trim() : "";
+            String wing     = parts.length > 2 ? parts[2].trim() : "";
+
+            String parsedSociety = society;
+            if (parsedSociety.isEmpty() || parsedSociety.equals("Residence") || parsedSociety.equals("Residential Area")) {
+                parsedSociety = parts.length > 3 ? parts[3].trim() : "";
+            }
+            if (parsedSociety.isEmpty() && !wing.isEmpty()) {
+                parsedSociety = wing;
+                wing = "";
+            }
+
+            String area = parts.length > 4 ? parts[4].trim() : "Pune";
+            if (parts.length > 5) area += ", " + parts[5].trim();
+
+            ((TextView) findViewById(R.id.addr_flat)).setText(flat);
+
+            String bldgText = building;
+            if (!wing.isEmpty()) {
+                bldgText = building.isEmpty() ? "Wing " + wing : building + ", Wing " + wing;
+            }
+            ((TextView) findViewById(R.id.addr_building)).setText(bldgText.isEmpty() ? "-" : bldgText);
+            ((TextView) findViewById(R.id.addr_society)).setText(parsedSociety.isEmpty() ? "-" : parsedSociety);
+            ((TextView) findViewById(R.id.addr_area)).setText(area);
+            ((TextView) findViewById(R.id.addr_full)).setText(address);
+        } else {
+            ((TextView) findViewById(R.id.addr_full)).setText(address);
+            ((TextView) findViewById(R.id.addr_society)).setText(society.isEmpty() ? "Residential Area" : society);
+        }
+
         if (phone.length() >= 10)
             ((TextView) findViewById(R.id.tv_customer_phone)).setText(
                     "+91 " + phone.substring(0, 5) + " " + phone.substring(5));
@@ -625,9 +656,10 @@ public class DeliveryDetailActivity extends AppCompatActivity {
 
     private void updateUIWithUserData(Map<String, Object> userMap) {
         if (userMap == null) return;
-        String name = FirebaseRepository.str(userMap, "name");
+        String name    = FirebaseRepository.str(userMap, "name");
         String address = FirebaseRepository.str(userMap, "address");
         String society = FirebaseRepository.str(userMap, "society");
+
         if (society.isEmpty() && !address.isEmpty()) {
             String[] parts = address.split(",");
             society = parts.length > 2 ? parts[2].trim() : (parts.length > 0 ? parts[0].trim() : "Residence");
@@ -640,9 +672,35 @@ public class DeliveryDetailActivity extends AppCompatActivity {
         }
         if (!society.isEmpty()) {
             ((TextView) findViewById(R.id.society_name)).setText(society);
-            ((TextView) findViewById(R.id.addr_society)).setText(society);
         }
+
         if (!address.isEmpty()) {
+            String[] parts = address.split(",");
+            String flat     = parts.length > 0 ? parts[0].trim() : address;
+            String building = parts.length > 1 ? parts[1].trim() : "";
+            String wing     = parts.length > 2 ? parts[2].trim() : "";
+
+            String parsedSociety = society;
+            if (parsedSociety.isEmpty() || parsedSociety.equals("Residence") || parsedSociety.equals("Residential Area")) {
+                parsedSociety = parts.length > 3 ? parts[3].trim() : "";
+            }
+            if (parsedSociety.isEmpty() && !wing.isEmpty()) {
+                parsedSociety = wing;
+                wing = "";
+            }
+
+            String area = parts.length > 4 ? parts[4].trim() : "Pune";
+            if (parts.length > 5) area += ", " + parts[5].trim();
+
+            ((TextView) findViewById(R.id.addr_flat)).setText(flat);
+
+            String bldgText = building;
+            if (!wing.isEmpty()) {
+                bldgText = building.isEmpty() ? "Wing " + wing : building + ", Wing " + wing;
+            }
+            ((TextView) findViewById(R.id.addr_building)).setText(bldgText.isEmpty() ? "-" : bldgText);
+            ((TextView) findViewById(R.id.addr_society)).setText(parsedSociety.isEmpty() ? "-" : parsedSociety);
+            ((TextView) findViewById(R.id.addr_area)).setText(area);
             ((TextView) findViewById(R.id.addr_full)).setText(address);
         }
     }
